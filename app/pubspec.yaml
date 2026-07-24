@@ -16,7 +16,6 @@ dependencies:
   shared_preferences: ^2.2.0
   flutter_launcher_icons: ^0.13.1
   intl: ^0.18.0
-  datetime_picker_formfield: ^2.1.0
   flutter_svg: ^2.0.7
   cached_network_image: ^3.3.0
   # Pour le travail offline et la synchronisation
