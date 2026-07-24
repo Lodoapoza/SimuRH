@@ -33,12 +33,12 @@ jobs:
 
       - name: 🔨 Build APK (arm64 only)
         working-directory: app
-        run: flutter build apk --debug --target-platform android-arm64 --split-per-abi
+        run: flutter build apk --release --target-platform android-arm64 --split-per-abi
 
       - name: 🏷️ Rename APK
         run: |
           mkdir -p release
-          cp app/build/app/outputs/flutter-apk/app-arm64-v8a-debug.apk release/SimuRH-debug.apk
+          cp app/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk release/SimuRH.apk
 
       - name: 🚀 Upload to Nightly Release
         run: |
@@ -46,6 +46,6 @@ jobs:
           gh release create nightly \
             --title "SimuRH Nightly Build" \
             --notes "Build #${{ github.run_number }} — $(date -u +'%Y-%m-%d %H:%M UTC') — Commit: ${{ github.sha }}" \
-            release/SimuRH-debug.apk
+            release/SimuRH.apk
         env:
           GH_TOKEN: ${{ github.token }}
