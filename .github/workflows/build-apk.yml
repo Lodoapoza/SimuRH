@@ -21,7 +21,8 @@ jobs:
       - name: 🏗️ Generate proper Flutter project structure
         run: |
           flutter create --project-name simurh --org com.simurh _template
-          cp -r app/lib _template/lib
+          rm -rf _template/lib
+          mv app/lib _template/lib
           cp app/pubspec.yaml _template/pubspec.yaml
           rm -rf app
           mv _template app
