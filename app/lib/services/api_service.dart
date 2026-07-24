@@ -9,7 +9,7 @@ class ApiService {
   factory ApiService() => _instance;
   ApiService._internal();
 
-  static const String _baseUrl = 'https://simurh.glocal-innov.com/api/';
+  static const String _baseUrl = 'https://simurh.glocal-innov.com/api';
   static String get baseUrl => _baseUrl;
   static String? _token;
 
