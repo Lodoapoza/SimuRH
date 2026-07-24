@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Simulation;
 import 'package:intl/intl.dart';
 import 'package:simurh/services/auth_service.dart';
 import 'package:simurh/services/api_service.dart';
@@ -11,6 +11,7 @@ import 'package:simurh/models/group_model.dart';
 import 'package:simurh/models/submission.dart';
 import 'package:simurh/models/evaluation.dart';
 import 'package:simurh/models/resource.dart';
+import 'package:simurh/models/ranking.dart';
 import 'package:simurh/screens/student/simulation_work_screen.dart';
 import 'package:simurh/screens/student/result_screen.dart';
 import 'package:simurh/screens/student/resources_view_screen.dart';

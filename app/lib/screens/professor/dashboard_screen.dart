@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Simulation;
 import 'package:simurh/services/auth_service.dart';
 import 'package:simurh/services/api_service.dart';
 import 'package:simurh/services/license_service.dart';
@@ -112,7 +112,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: Icon(
               _isOnline ? Icons.cloud_done : Icons.cloud_off,
               color: _isOnline
-                  ? colorScheme.onPrimary.withValues(alpha: 0.8)
+                  ? colorScheme.onPrimary.withOpacity(0.8)
                   : Colors.orange[300],
               size: 20,
             ),
@@ -204,8 +204,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: isTrial
-            ? Colors.orange.withValues(alpha: 0.15)
-            : Colors.green.withValues(alpha: 0.15),
+            ? Colors.orange.withOpacity(0.15)
+            : Colors.green.withOpacity(0.15),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -253,7 +253,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -359,7 +359,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: item.color.withValues(alpha: 0.12),
+                      color: item.color.withOpacity(0.12),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(item.icon, color: item.color, size: 24),
@@ -395,7 +395,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Center(
             child: Column(
               children: [
-                Icon(Icons.inbox_outlined, size: 48, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4)),
+                Icon(Icons.inbox_outlined, size: 48, color: colorScheme.onSurfaceVariant.withOpacity(0.4)),
                 const SizedBox(height: 12),
                 Text(
                   'Aucune simulation pour le moment',
@@ -407,7 +407,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Text(
                   'Créez votre première simulation',
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                    color: colorScheme.onSurfaceVariant.withOpacity(0.7),
                   ),
                 ),
               ],
@@ -522,7 +522,7 @@ class _SimulationListScreenState extends State<SimulationListScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.assignment_outlined, size: 64,
-                          color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.4)),
+                          color: theme.colorScheme.onSurfaceVariant.withOpacity(0.4)),
                       const SizedBox(height: 16),
                       Text('Aucune simulation', style: theme.textTheme.titleMedium),
                     ],

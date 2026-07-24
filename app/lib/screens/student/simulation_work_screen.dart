@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Simulation;
 import 'package:intl/intl.dart';
 import 'package:simurh/services/auth_service.dart';
 import 'package:simurh/services/api_service.dart';

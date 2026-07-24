@@ -72,14 +72,14 @@ class ApiService {
   /// Performs a GET request to the API.
   Future<Map<String, dynamic>> get(String endpoint) async {
     final uri = Uri.parse('$_baseUrl$endpoint');
-    final response = await http.get(uri, headers: _getHeaders());
+    final response = await http.get(uri, headers: getHeaders());
     return _handleResponse(response);
   }
 
   /// Performs a GET request expecting a list of data from the API.
   Future<List<Map<String, dynamic>>> getList(String endpoint) async {
     final uri = Uri.parse('$_baseUrl$endpoint');
-    final response = await http.get(uri, headers: _getHeaders());
+    final response = await http.get(uri, headers: getHeaders());
     if (response.statusCode >= 200 && response.statusCode < 300) {
       final List<dynamic> data = json.decode(response.body);
       return data.cast<Map<String, dynamic>>();
@@ -104,7 +104,7 @@ class ApiService {
       String endpoint, Map<String, dynamic> body) async {
     final uri = Uri.parse('$_baseUrl$endpoint');
     final response =
-        await http.post(uri, headers: _getHeaders(), body: json.encode(body));
+        await http.post(uri, headers: getHeaders(), body: json.encode(body));
     return _handleResponse(response);
   }
 
@@ -113,14 +113,14 @@ class ApiService {
       String endpoint, Map<String, dynamic> body) async {
     final uri = Uri.parse('$_baseUrl$endpoint');
     final response =
-        await http.put(uri, headers: _getHeaders(), body: json.encode(body));
+        await http.put(uri, headers: getHeaders(), body: json.encode(body));
     return _handleResponse(response);
   }
 
   /// Performs a DELETE request to the API.
   Future<Map<String, dynamic>> delete(String endpoint) async {
     final uri = Uri.parse('$_baseUrl$endpoint');
-    final response = await http.delete(uri, headers: _getHeaders());
+    final response = await http.delete(uri, headers: getHeaders());
     return _handleResponse(response);
   }
 
@@ -128,7 +128,7 @@ class ApiService {
   Future<Map<String, dynamic>> uploadFile(String endpoint, String filePath) async {
     final uri = Uri.parse('$_baseUrl$endpoint');
     final request = http.MultipartRequest('POST', uri)
-      ..headers.addAll(_getHeaders())
+      ..headers.addAll(getHeaders())
       ..files.add(await http.MultipartFile.fromPath('file', filePath)); // 'file' is the expected field name
 
     final streamedResponse = await request.send();

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Simulation;
 import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:simurh/services/api_service.dart';
@@ -169,7 +169,7 @@ class _CreateSimulationScreenState extends State<CreateSimulationScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     // Check trial mode
-    if (LicenseService.isTrialMode() && !LicenseService.canCreateSimulation()) {
+    if (LicenseService.isTrialMode() && await LicenseService.canCreateSimulation() != null) {
       _showLicenseError();
       return;
     }
@@ -205,7 +205,7 @@ class _CreateSimulationScreenState extends State<CreateSimulationScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     // Check trial mode
-    if (LicenseService.isTrialMode() && !LicenseService.canCreateSimulation()) {
+    if (LicenseService.isTrialMode() && await LicenseService.canCreateSimulation() != null) {
       _showLicenseError();
       return;
     }
