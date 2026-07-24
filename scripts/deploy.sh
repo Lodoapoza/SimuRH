@@ -17,7 +17,7 @@ cd "$PROJECT_DIR"
 SSH_KEY="$HOME/.ssh/id_rsa_o2switch"
 SSH_USER="sc3sidaou"
 SSH_HOST="109.234.164.11"
-REMOTE_PATH="/home2/sc3sidaou/cloud/simurh"
+REMOTE_PATH="/home2/sc3sidaou/cloud.glocal-innov.com/public_html/simurh"
 
 echo "🚀 Déploiement SimuRH vers O2Switch..."
 

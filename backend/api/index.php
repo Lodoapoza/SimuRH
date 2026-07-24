@@ -51,6 +51,9 @@ switch ($resource) {
     case 'files':
         require __DIR__ . '/files.php';
         break;
+    case 'payments':
+        require __DIR__ . '/payments.php';
+        break;
     case 'health':
         json_response(['status' => 'ok', 'time' => date('c')]);
         break;

@@ -7,7 +7,7 @@ set -e
 FTP_USER="sc3sidaou"
 FTP_PASS="LS@2025*"
 FTP_HOST="cloud.glocal-innov.com"
-FTP_BASE="/simurh"
+FTP_BASE="/cloud.glocal-innov.com/public_html/simurh"
 BACKEND_DIR="$(cd "$(dirname "$0")/../backend" && pwd)"
 FTP_OPTS="-s --ftp-create-dirs"
 

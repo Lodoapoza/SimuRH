@@ -7,6 +7,7 @@ class User {
   final String name;
   final String phone;
   final String role;
+  final int establishmentId;
   final String establishmentName;
   final String? city;
 
@@ -15,6 +16,7 @@ class User {
     required this.name,
     required this.phone,
     required this.role,
+    required this.establishmentId,
     required this.establishmentName,
     this.city,
   });
@@ -25,6 +27,7 @@ class User {
       name: json['name'],
       phone: json['phone'],
       role: json['role'],
+      establishmentId: json['establishment_id'] ?? json['establishmentId'] ?? 0,
       establishmentName: json['establishment_name'],
       city: json['city'],
     );
@@ -36,6 +39,7 @@ class User {
       'name': name,
       'phone': phone,
       'role': role,
+      'establishment_id': establishmentId,
       'establishment_name': establishmentName,
       'city': city,
     };
@@ -131,6 +135,7 @@ class AuthService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_tokenKey, token);
     await prefs.setString(_userKey, json.encode(user.toJson()));
+    await prefs.setInt('establishment_id', user.establishmentId);
     ApiService.setToken(token);
   }
 
