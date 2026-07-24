@@ -8,17 +8,19 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read  # needed for checkout
+  contents: read
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
 
-      - uses: subosito/flutter-action@v3
+      - uses: subosito/flutter-action@v2
         with:
-          flutter-version: 'stable'
+          flutter-version: '3.22.0'
+          channel: 'stable'
+          cache: true
 
       - name: 📦 Install dependencies
         working-directory: app
