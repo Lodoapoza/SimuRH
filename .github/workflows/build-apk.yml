@@ -22,6 +22,16 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: 🏗️ Generate proper Flutter project structure
+        run: |
+          # Create a template Flutter project to get android/ and other required dirs
+          flutter create --project-name simurh --org com.simurh _template
+          # Copy our custom code over the template
+          cp -r app/lib _template/lib
+          cp app/pubspec.yaml _template/pubspec.yaml
+          rm -rf app
+          mv _template app
+
       - name: 📦 Install dependencies
         working-directory: app
         run: flutter pub get
