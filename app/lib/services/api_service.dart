@@ -39,7 +39,7 @@ class ApiService {
   static String? getToken() => _token;
 
   /// Builds common headers for API requests.
-  Map<String, String> _getHeaders() {
+  Map<String, String> getHeaders() {
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',

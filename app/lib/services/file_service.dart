@@ -40,8 +40,8 @@ class FileService {
     }
 
     final response = await http.get(
-      Uri.parse('${ApiService._baseUrl}files/download/$fileId'),
-      headers: ApiService()._getHeaders(),
+      Uri.parse('${ApiService.baseUrl}files/download/$fileId'),
+      headers: ApiService().getHeaders(),
     );
 
     if (response.statusCode == 200) {
@@ -49,7 +49,7 @@ class FileService {
       return filePath;
     } else {
       throw HttpException('Failed to download file: ${response.statusCode}',
-          uri: Uri.parse('${ApiService._baseUrl}files/download/$fileId'));
+          uri: Uri.parse('${ApiService.baseUrl}files/download/$fileId'));
     }
   }
 

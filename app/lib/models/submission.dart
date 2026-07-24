@@ -13,6 +13,7 @@ class Submission {
   final double totalScore;
   final String? comments;
   final Map<String, double> scores;
+  final String status;
 
   Submission({
     required this.id,
@@ -27,6 +28,7 @@ class Submission {
     required this.totalScore,
     this.comments,
     required this.scores,
+    this.status = 'submitted',
   });
 
   factory Submission.fromJson(Map<String, dynamic> json) {
@@ -43,6 +45,7 @@ class Submission {
       totalScore: (json['totalScore'] as num).toDouble(),
       comments: json['comments'] as String?,
       scores: Map<String, double>.from(json['scores'] as Map),
+      status: json['status'] as String? ?? 'submitted',
     );
   }
 
@@ -60,6 +63,7 @@ class Submission {
       'totalScore': totalScore,
       'comments': comments,
       'scores': scores,
+      'status': status,
     };
   }
 }
