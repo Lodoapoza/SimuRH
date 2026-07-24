@@ -41,9 +41,7 @@ jobs:
           gh release delete nightly -y 2>/dev/null || true
           gh release create nightly \
             --title "SimuRH Nightly Build" \
-            --notes "Build #${{ github.run_number }} du $(date -u +'%Y-%m-%d %H:%M UTC')
-
-Commit: ${{ github.sha }}" \
+            --notes "Build #${{ github.run_number }} — $(date -u +'%Y-%m-%d %H:%M UTC') — Commit: ${{ github.sha }}" \
             app/build/app/outputs/flutter-apk/app-arm64-v8a-debug.apk
         env:
           GH_TOKEN: ${{ github.token }}
