@@ -5,7 +5,7 @@ import 'package:simurh/services/license_service.dart';
 import 'package:simurh/screens/professor/create_simulation_screen.dart';
 import 'package:simurh/screens/professor/simulation_detail_screen.dart';
 import 'package:simurh/screens/professor/resources_screen.dart';
-import 'package:simurh/screens/professor/evaluation_screen.dart';
+
 import 'package:simurh/screens/license/license_screen.dart';
 import 'package:simurh/models/simulation.dart';
 
@@ -313,7 +313,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       _NavItem('Évaluations', Icons.grading, Colors.teal, () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const EvaluationScreen()),
+          MaterialPageRoute(
+            builder: (_) => const SimulationListScreen(),
+          ),
         );
       }),
       _NavItem('Étudiants', Icons.people_outline, Colors.indigo, () {
