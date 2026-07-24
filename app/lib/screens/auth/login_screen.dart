@@ -66,7 +66,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       if (user != null && mounted) _redirectUser(user);
       else setState(() => _error = 'Identifiants incorrects');
     } catch (e) {
-      setState(() => _error = 'Erreur de connexion au serveur');
+      setState(() => _error = 'Erreur: $e');
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -95,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       if (user != null && mounted) _redirectUser(user);
       else setState(() => _error = 'Erreur lors de l\'inscription');
     } catch (e) {
-      setState(() => _error = 'Erreur de connexion au serveur');
+      setState(() => _error = 'Erreur: $e');
     } finally {
       if (mounted) setState(() => _loading = false);
     }
