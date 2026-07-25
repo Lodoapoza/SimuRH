@@ -149,16 +149,23 @@ class LicenseService {
 
   /// Ancienne API : achat de licence (CinetPay).
   /// Dans le nouveau modèle, utiliser ActivationScreen avec une clé.
-  static Future<Map<String, dynamic>> purchaseLicense(
-      String etablissement, String email) async {
-    throw UnsupportedError(
-        'Le paiement en ligne n\'est plus disponible. '
-        'Utilisez la clé d\'activation fournie par votre administrateur.');
+  static Future<Map<String, dynamic>> purchaseLicense({
+    required int establishmentId,
+    required String phone,
+  }) async {
+    return {
+      'success': false,
+      'error': 'Le paiement en ligne n\'est plus disponible. '
+          'Utilisez la clé d\'activation fournie par votre administrateur.',
+    };
   }
 
   /// Ancienne API : vérification du paiement.
-  static Future<Map<String, dynamic>?> checkPaymentStatus(
+  static Future<Map<String, dynamic>> checkPaymentStatus(
       String transactionId) async {
-    return null;
+    return {
+      'payment_status': 'unknown',
+      'license_status': 'inactive',
+    };
   }
 }
