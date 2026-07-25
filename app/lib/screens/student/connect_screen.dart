@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ConnectScreen extends StatefulWidget {
   const ConnectScreen({super.key});
@@ -13,6 +14,20 @@ class _ConnectScreenState extends State<ConnectScreen> {
   final _portController = TextEditingController(text: '8080');
   bool _connecting = false;
   String? _message;
+  String _etablissement = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadEtablissement();
+  }
+
+  Future<void> _loadEtablissement() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _etablissement = prefs.getString('simurh_etablissement') ?? '';
+    });
+  }
 
   Future<void> _connect() async {
     final ip = _ipController.text.trim();
@@ -30,6 +45,14 @@ class _ConnectScreenState extends State<ConnectScreen> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['status'] == 'ok') {
+          // Extract and save establishment name if available
+          final etablissement = data['etablissement'] as String? ?? '';
+          if (etablissement.isNotEmpty) {
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setString('simurh_etablissement', etablissement);
+            setState(() => _etablissement = etablissement);
+          }
+
           if (mounted) {
             showDialog(
               context: context,
@@ -41,7 +64,7 @@ class _ConnectScreenState extends State<ConnectScreen> {
                     onPressed: () {
                     Navigator.pop(ctx);
                     Navigator.pushNamed(context, '/student/home',
-                      arguments: {'ip': ip, 'port': port});
+                      arguments: {'ip': ip, 'port': port, 'etablissement': etablissement});
                   },
                     child: const Text('Terminé'),
                   ),
@@ -61,7 +84,17 @@ class _ConnectScreenState extends State<ConnectScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Connexion au professeur')),
+      appBar: AppBar(
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Connexion au professeur'),
+            if (_etablissement.isNotEmpty)
+              Text(_etablissement,
+                style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.8))),
+          ],
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(

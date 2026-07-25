@@ -8,6 +8,7 @@ import 'package:simurh/models/group_model.dart';
 import 'package:simurh/models/submission.dart';
 import 'package:simurh/models/user.dart';
 import 'package:simurh/models/resource.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SimulationWorkScreen extends StatefulWidget {
   final Simulation simulation;
@@ -35,6 +36,7 @@ class _SimulationWorkScreenState extends State<SimulationWorkScreen>
   bool _isLoading = true;
   bool _isOnline = true;
   String? _errorMessage;
+  String _etablissement = '';
 
   // Data
   User? _currentUser;
@@ -62,7 +64,20 @@ class _SimulationWorkScreenState extends State<SimulationWorkScreen>
       }
     });
 
+    _loadEtablissement();
     _initialize();
+  }
+
+  Future<void> _loadEtablissement() async {
+    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    if (args != null && args['etablissement'] != null) {
+      setState(() => _etablissement = args['etablissement'] as String);
+      return;
+    }
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _etablissement = prefs.getString('simurh_etablissement') ?? '';
+    });
   }
 
   @override
@@ -498,6 +513,11 @@ class _SimulationWorkScreenState extends State<SimulationWorkScreen>
                 letterSpacing: 1.5,
               ),
             ),
+            if (_etablissement.isNotEmpty)
+              Text(
+                _etablissement,
+                style: TextStyle(fontSize: 12, color: theme.colorScheme.onPrimary.withOpacity(0.8)),
+              ),
           ],
         ),
         actions: [

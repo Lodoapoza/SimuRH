@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:simurh/services/local_server_service.dart';
 import 'package:simurh/services/local_server_routes.dart';
+import 'package:simurh/services/license_service.dart';
 
 class ConnectivityScreen extends StatefulWidget {
   const ConnectivityScreen({super.key});
@@ -14,6 +15,7 @@ class _ConnectivityScreenState extends State<ConnectivityScreen> {
   String? _ip;
   bool _running = false;
   int _port = 8080;
+  String _etablissement = '';
 
   @override
   void initState() {
@@ -22,6 +24,7 @@ class _ConnectivityScreenState extends State<ConnectivityScreen> {
   }
 
   Future<void> _init() async {
+    _etablissement = (await LicenseService.getLicense())?.etablissement ?? '';
     _running = _server.isRunning;
     _ip = await _server.getLocalIp();
     if (mounted) setState(() => _loading = false);
@@ -54,7 +57,17 @@ class _ConnectivityScreenState extends State<ConnectivityScreen> {
     if (_loading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Connectivité')),
+      appBar: AppBar(
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Connectivité'),
+            if (_etablissement.isNotEmpty)
+              Text(_etablissement,
+                style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.8))),
+          ],
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(

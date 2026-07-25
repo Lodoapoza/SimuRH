@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:simurh/services/db_service.dart';
 import 'package:simurh/models/resource.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ResourcesViewScreen extends StatefulWidget {
   final List<Resource>? resources;
@@ -22,11 +23,25 @@ class _ResourcesViewScreenState extends State<ResourcesViewScreen> {
   String? _errorMessage;
   List<Resource> _resources = [];
   Set<String> _downloadingIds = {};
+  String _etablissement = '';
 
   @override
   void initState() {
     super.initState();
+    _loadEtablissement();
     _initialize();
+  }
+
+  Future<void> _loadEtablissement() async {
+    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    if (args != null && args['etablissement'] != null) {
+      setState(() => _etablissement = args['etablissement'] as String);
+      return;
+    }
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _etablissement = prefs.getString('simurh_etablissement') ?? '';
+    });
   }
 
   Future<void> _initialize() async {
@@ -183,7 +198,15 @@ class _ResourcesViewScreenState extends State<ResourcesViewScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ressources'),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Ressources'),
+            if (_etablissement.isNotEmpty)
+              Text(_etablissement,
+                style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.8))),
+          ],
+        ),
         actions: [
           if (!_isOnline)
             Padding(

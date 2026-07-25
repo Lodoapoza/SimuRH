@@ -4,6 +4,7 @@ import 'package:shelf_router/shelf_router.dart';
 import 'package:simurh/services/local_server_service.dart';
 import 'package:simurh/services/db_service.dart';
 import 'package:simurh/services/group_service.dart';
+import 'package:simurh/services/license_service.dart';
 
 class LocalServerRoutes {
   final LocalServerService _server = LocalServerService();
@@ -28,9 +29,14 @@ class LocalServerRoutes {
 
     final auth = authMiddleware();
 
-    r.get('/api/health', (Request req) {
+    r.get('/api/health', (Request req) async {
+      final license = await LicenseService.getLicense();
       return Response.ok(
-          jsonEncode({'status': 'ok', 'version': '1.0.0'}),
+          jsonEncode({
+            'status': 'ok',
+            'version': '1.0.0',
+            'etablissement': license?.etablissement ?? '',
+          }),
           headers: {'Content-Type': 'application/json'});
     });
 

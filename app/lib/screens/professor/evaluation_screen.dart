@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:simurh/services/db_service.dart';
+import 'package:simurh/services/license_service.dart';
 import 'package:simurh/models/simulation.dart';
 import 'package:simurh/models/group_model.dart';
 import 'package:simurh/models/submission.dart';
@@ -37,11 +38,18 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
 
   // Score per criterion name
   final Map<String, double> _scores = {};
+  String _etablissement = '';
 
   @override
   void initState() {
     super.initState();
     _initScores();
+    _loadEtablissement();
+  }
+
+  Future<void> _loadEtablissement() async {
+    _etablissement = (await LicenseService.getLicense())?.etablissement ?? '';
+    if (mounted) setState(() {});
   }
 
   void _initScores() {
@@ -178,6 +186,13 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
                 color: theme.colorScheme.onPrimary.withOpacity(0.7),
               ),
             ),
+            if (_etablissement.isNotEmpty)
+              Text(_etablissement,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: theme.colorScheme.onPrimary.withOpacity(0.8),
+                ),
+              ),
           ],
         ),
       ),

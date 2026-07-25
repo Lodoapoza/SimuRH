@@ -1,5 +1,5 @@
+import 'dart:convert';
 import 'dart:io';
-
 import 'package:flutter/material.dart' hide Simulation;
 import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
@@ -27,6 +27,7 @@ class _CreateSimulationScreenState extends State<CreateSimulationScreen> {
   String? _errorMessage;
   bool _isEditMode = false;
   String? _createdCode;
+  String _etablissement = '';
 
   // Form fields
   final _titleController = TextEditingController();
@@ -45,6 +46,12 @@ class _CreateSimulationScreenState extends State<CreateSimulationScreen> {
   void initState() {
     super.initState();
     _initForm();
+    _loadEtablissement();
+  }
+
+  Future<void> _loadEtablissement() async {
+    _etablissement = (await LicenseService.getLicense())?.etablissement ?? '';
+    if (mounted) setState(() {});
   }
 
   void _initForm() {
@@ -263,22 +270,24 @@ class _CreateSimulationScreenState extends State<CreateSimulationScreen> {
     return {
       'title': _titleController.text.trim(),
       'context': _contextController.text.trim(),
-      'objectives': _objectiveControllers
+      'objectives': jsonEncode(_objectiveControllers
           .map((c) => c.text.trim())
           .where((t) => t.isNotEmpty)
-          .toList(),
-      'durationDays': _durationDays,
-      'maxGroups': _maxGroups,
-      'gradingCriteria': _criteria
+          .toList()),
+      'duration_days': _durationDays,
+      'max_groups': _maxGroups,
+      'grading_criteria': jsonEncode(_criteria
           .where((c) => c.nameController.text.trim().isNotEmpty)
           .map((c) => {
                 'name': c.nameController.text.trim(),
                 'maxScore': c.maxScore,
                 'coefficient': c.coefficient,
               })
-          .toList(),
+          .toList()),
       'status': status,
       'code': _generateLocalCode(),
+      'created_at': DateTime.now().toIso8601String(),
+      'updated_at': DateTime.now().toIso8601String(),
     };
   }
 
@@ -362,7 +371,15 @@ class _CreateSimulationScreenState extends State<CreateSimulationScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditMode ? 'Modifier la simulation' : 'Nouvelle simulation'),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(_isEditMode ? 'Modifier la simulation' : 'Nouvelle simulation'),
+            if (_etablissement.isNotEmpty)
+              Text(_etablissement,
+                style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.8))),
+          ],
+        ),
         actions: [
           if (_isLoading)
             const Padding(
@@ -450,7 +467,15 @@ class _CreateSimulationScreenState extends State<CreateSimulationScreen> {
   Widget _buildSuccessScreen(ThemeData theme) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Simulation créée'),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Simulation créée'),
+            if (_etablissement.isNotEmpty)
+              Text(_etablissement,
+                style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.8))),
+          ],
+        ),
         automaticallyImplyLeading: false,
       ),
       body: Center(

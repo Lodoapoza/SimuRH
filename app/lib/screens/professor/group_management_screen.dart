@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:simurh/models/group_model.dart';
 import 'package:simurh/services/group_service.dart';
+import 'package:simurh/services/license_service.dart';
 
 class GroupManagementScreen extends StatefulWidget {
   final int simulationId;
@@ -14,6 +15,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
   final _service = GroupService();
   List<Group> _groups = [];
   bool _loading = true;
+  String _etablissement = '';
 
   @override
   void initState() {
@@ -22,6 +24,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
   }
 
   Future<void> _load() async {
+    _etablissement = (await LicenseService.getLicense())?.etablissement ?? '';
     final groups = await _service.getGroups(widget.simulationId);
     if (mounted) setState(() {
       _groups = groups;
@@ -32,7 +35,17 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Groupes')),
+      appBar: AppBar(
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Groupes'),
+            if (_etablissement.isNotEmpty)
+              Text(_etablissement,
+                style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.8))),
+          ],
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _createGroup,
         child: const Icon(Icons.add),

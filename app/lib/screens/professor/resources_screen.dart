@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:simurh/services/db_service.dart';
+import 'package:simurh/services/license_service.dart';
 import 'package:simurh/models/resource.dart';
 
 class ResourcesScreen extends StatefulWidget {
@@ -22,11 +23,18 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
   List<Resource> _resources = [];
   Set<String> _downloadingIds = {};
   Set<String> _deletingIds = {};
+  String _etablissement = '';
 
   @override
   void initState() {
     super.initState();
     _loadResources();
+    _loadEtablissement();
+  }
+
+  Future<void> _loadEtablissement() async {
+    _etablissement = (await LicenseService.getLicense())?.etablissement ?? '';
+    if (mounted) setState(() {});
   }
 
   Future<void> _loadResources() async {
@@ -282,7 +290,15 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ressources pédagogiques'),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Ressources pédagogiques'),
+            if (_etablissement.isNotEmpty)
+              Text(_etablissement,
+                style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.8))),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _isUploading ? null : _showUploadDialog,

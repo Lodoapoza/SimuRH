@@ -21,7 +21,7 @@ class DbService {
     final path = join(dbPath, 'simurh_offline.db');
     return await openDatabase(
       path,
-      version: 3,
+      version: 4,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -167,6 +167,16 @@ class DbService {
           FOREIGN KEY (group_id) REFERENCES groups_table(id) ON DELETE CASCADE
         )
       ''');
+    }
+    if (oldVersion < 4) {
+      await db.execute('ALTER TABLE simulations ADD COLUMN context TEXT');
+      await db.execute('ALTER TABLE simulations ADD COLUMN objectives TEXT');
+      await db.execute('ALTER TABLE simulations ADD COLUMN duration_days INTEGER DEFAULT 7');
+      await db.execute('ALTER TABLE simulations ADD COLUMN max_groups INTEGER DEFAULT 5');
+      await db.execute('ALTER TABLE simulations ADD COLUMN grading_criteria TEXT');
+      await db.execute('ALTER TABLE simulations ADD COLUMN professor_name TEXT');
+      await db.execute('ALTER TABLE simulations ADD COLUMN group_count INTEGER DEFAULT 0');
+      await db.execute('ALTER TABLE simulations ADD COLUMN submission_count INTEGER DEFAULT 0');
     }
   }
 

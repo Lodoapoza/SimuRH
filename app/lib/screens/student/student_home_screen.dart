@@ -12,6 +12,7 @@ import 'package:simurh/models/ranking.dart';
 import 'package:simurh/screens/student/simulation_work_screen.dart';
 import 'package:simurh/screens/student/result_screen.dart';
 import 'package:simurh/screens/student/resources_view_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class StudentHomeScreen extends StatefulWidget {
   const StudentHomeScreen({super.key});
@@ -28,6 +29,8 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
   bool _isOnline = true;
   String? _errorMessage;
 
+  String _etablissement = '';
+
   // Simulation state
   Simulation? _simulation;
   Group? _userGroup;
@@ -39,7 +42,22 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
   @override
   void initState() {
     super.initState();
+    _loadEtablissement();
     _initialize();
+  }
+
+  Future<void> _loadEtablissement() async {
+    // Try route arguments first
+    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    if (args != null && args['etablissement'] != null) {
+      setState(() => _etablissement = args['etablissement'] as String);
+      return;
+    }
+    // Fallback to SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _etablissement = prefs.getString('simurh_etablissement') ?? '';
+    });
   }
 
   Future<void> _initialize() async {
@@ -350,6 +368,11 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
               Text(
                 _currentUser!.name,
                 style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onPrimary.withOpacity(0.8)),
+              ),
+            if (_etablissement.isNotEmpty)
+              Text(
+                _etablissement,
+                style: TextStyle(fontSize: 12, color: theme.colorScheme.onPrimary.withOpacity(0.8)),
               ),
           ],
         ),

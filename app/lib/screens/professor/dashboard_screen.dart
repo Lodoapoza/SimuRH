@@ -25,6 +25,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final LocalServerService _server = LocalServerService();
 
   String _userName = '';
+  String _etablissement = '';
   bool _isLoading = true;
   bool _isOnline = true;
   int _simulationCount = 0;
@@ -65,6 +66,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final profile = await _auth.getActiveProfile();
       _userName = profile?.name ?? 'Professeur';
 
+      final license = await LicenseService.getLicense();
+      _etablissement = license?.etablissement ?? '';
+
       final sims = await _db.getCachedSimulations();
       _simulationCount = sims.length;
       _recentSimulations = sims.take(5).map((j) => Simulation.fromJson(j)).toList();
@@ -91,7 +95,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       backgroundColor: colorScheme.surfaceContainerLowest,
       appBar: AppBar(
-        title: Text('SimuRH', style: TextStyle(fontWeight: FontWeight.w600, color: colorScheme.onPrimary)),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('SimuRH', style: TextStyle(fontWeight: FontWeight.w600, color: colorScheme.onPrimary)),
+            if (_etablissement.isNotEmpty)
+              Text(_etablissement,
+                style: TextStyle(fontSize: 12, color: colorScheme.onPrimary.withOpacity(0.8))),
+          ],
+        ),
         backgroundColor: colorScheme.primary,
         iconTheme: IconThemeData(color: colorScheme.onPrimary),
         actions: [
@@ -520,6 +532,7 @@ class SimulationListScreen extends StatefulWidget {
 
 class _SimulationListScreenState extends State<SimulationListScreen> {
   final DbService _db = DbService();
+  String _etablissement = '';
   List<Simulation> _simulations = [];
   bool _isLoading = true;
 
@@ -532,6 +545,8 @@ class _SimulationListScreenState extends State<SimulationListScreen> {
   Future<void> _loadSimulations() async {
     setState(() => _isLoading = true);
     try {
+      final license = await LicenseService.getLicense();
+      _etablissement = license?.etablissement ?? '';
       final data = await _db.getCachedSimulations();
       if (mounted) {
         setState(() {
@@ -548,7 +563,17 @@ class _SimulationListScreenState extends State<SimulationListScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Mes simulations')),
+      appBar: AppBar(
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Mes simulations'),
+            if (_etablissement.isNotEmpty)
+              Text(_etablissement,
+                style: TextStyle(fontSize: 12, color: theme.colorScheme.onPrimary.withOpacity(0.8))),
+          ],
+        ),
+      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _simulations.isEmpty

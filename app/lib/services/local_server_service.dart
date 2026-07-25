@@ -40,11 +40,6 @@ class LocalServerService {
       _token = _generateToken();
 
       final router = _router ?? Router();
-      // Route santé
-      router.get('/api/health', (shelf.Request req) {
-        return shelf.Response.ok('{"status": "ok"}',
-          headers: {'Content-Type': 'application/json'});
-      });
 
       final handler = const shelf.Pipeline()
           .addMiddleware(shelf.logRequests())

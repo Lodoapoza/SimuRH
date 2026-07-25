@@ -5,6 +5,7 @@ import 'package:simurh/models/simulation.dart';
 import 'package:simurh/models/submission.dart';
 import 'package:simurh/models/evaluation.dart';
 import 'package:simurh/models/ranking.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ResultScreen extends StatefulWidget {
   final Simulation simulation;
@@ -31,13 +32,27 @@ class _ResultScreenState extends State<ResultScreen> {
   String? _errorMessage;
   Evaluation? _evaluation;
   List<RankingEntry> _rankings = [];
+  String _etablissement = '';
 
   @override
   void initState() {
     super.initState();
     _evaluation = widget.evaluation;
     _rankings = List.from(widget.rankings);
+    _loadEtablissement();
     _loadFullData();
+  }
+
+  Future<void> _loadEtablissement() async {
+    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    if (args != null && args['etablissement'] != null) {
+      setState(() => _etablissement = args['etablissement'] as String);
+      return;
+    }
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _etablissement = prefs.getString('simurh_etablissement') ?? '';
+    });
   }
 
   Future<void> _loadFullData() async {
@@ -93,7 +108,15 @@ class _ResultScreenState extends State<ResultScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Résultats'),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Résultats'),
+            if (_etablissement.isNotEmpty)
+              Text(_etablissement,
+                style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.8))),
+          ],
+        ),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())

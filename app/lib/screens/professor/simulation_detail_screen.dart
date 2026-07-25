@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:simurh/services/group_service.dart';
 import 'package:simurh/services/db_service.dart';
+import 'package:simurh/services/license_service.dart';
 import 'package:simurh/models/simulation.dart';
 import 'package:simurh/models/group_model.dart';
 import 'package:simurh/models/submission.dart';
@@ -34,6 +35,7 @@ class _SimulationDetailScreenState extends State<SimulationDetailScreen>
   Map<String, Submission> _submissionsByGroup = {};
   List<SimFile> _simFiles = [];
   Set<String> _downloadingFileIds = {};
+  String _etablissement = '';
 
   @override
   void initState() {
@@ -50,6 +52,7 @@ class _SimulationDetailScreenState extends State<SimulationDetailScreen>
 
   Future<void> _initialize() async {
     setState(() => _isLoading = true);
+    _etablissement = (await LicenseService.getLicense())?.etablissement ?? '';
 
     try {
       await Future.wait([
@@ -280,7 +283,15 @@ class _SimulationDetailScreenState extends State<SimulationDetailScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_simulation?.title ?? 'Détails simulation'),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(_simulation?.title ?? 'Détails simulation'),
+            if (_etablissement.isNotEmpty)
+              Text(_etablissement,
+                style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.8))),
+          ],
+        ),
         actions: [
           if (!_isOnline)
             Padding(
