@@ -1,7 +1,14 @@
 name: Build Flutter APK
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Déclencheur'
+        required: false
+        default: 'manual'
 
 permissions:
   contents: write
