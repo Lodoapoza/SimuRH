@@ -67,9 +67,57 @@ class _StartupGateState extends State<_StartupGate> {
         body: Center(child: CircularProgressIndicator()),
       );
     }
-    if (!_activated!) {
-      return const ActivationScreen();
+    if (_activated!) {
+      return const HomeGate();
     }
-    return const HomeGate();
+    return _buildWelcomeScreen();
+  }
+
+  Widget _buildWelcomeScreen() {
+    final theme = Theme.of(context);
+    return Scaffold(
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.school, size: 80, color: theme.colorScheme.primary),
+              const SizedBox(height: 24),
+              Text('SimuRH', style: theme.textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              Text('Application de simulation RH', style: theme.textTheme.bodyLarge?.copyWith(color: Colors.grey)),
+              const SizedBox(height: 48),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.person),
+                  label: const Text('Je suis professeur'),
+                  style: ElevatedButton.styleFrom(padding: const EdgeInsets.all(16), textStyle: const TextStyle(fontSize: 18)),
+                  onPressed: () => Navigator.pushReplacementNamed(context, '/activation'),
+                ),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  icon: const Icon(Icons.people),
+                  label: const Text('Je suis étudiant'),
+                  style: OutlinedButton.styleFrom(padding: const EdgeInsets.all(16), textStyle: const TextStyle(fontSize: 18)),
+                  onPressed: () => Navigator.pushReplacementNamed(context, '/student/connect'),
+                ),
+              ),
+              const SizedBox(height: 32),
+              TextButton(
+                onPressed: () {
+                  Navigator.pushReplacementNamed(context, '/home-gate');
+                },
+                child: const Text('Déjà activé ? Se connecter'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

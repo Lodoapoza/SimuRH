@@ -38,7 +38,11 @@ class _ConnectScreenState extends State<ConnectScreen> {
                 content: Text('Connecté au professeur sur $ip:$port'),
                 actions: [
                   ElevatedButton(
-                    onPressed: () { Navigator.pop(ctx); Navigator.pop(context); },
+                    onPressed: () {
+                    Navigator.pop(ctx);
+                    Navigator.pushNamed(context, '/student/home',
+                      arguments: {'ip': ip, 'port': port});
+                  },
                     child: const Text('Terminé'),
                   ),
                 ],
