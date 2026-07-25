@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart' hide Simulation;
+import 'package:url_launcher/url_launcher.dart';
 import 'package:simurh/services/local_auth_service.dart';
 import 'package:simurh/services/db_service.dart';
 import 'package:simurh/services/license_service.dart';
 import 'package:simurh/services/group_service.dart';
 import 'package:simurh/services/local_server_service.dart';
+import 'package:simurh/services/update_service.dart';
 import 'package:simurh/screens/professor/create_simulation_screen.dart';
 import 'package:simurh/screens/professor/simulation_detail_screen.dart';
 import 'package:simurh/screens/professor/resources_screen.dart';
@@ -112,6 +114,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               padding: const EdgeInsets.only(right: 4),
               child: _LiveIndicator(interval: _refreshInterval),
             ),
+          _buildUpdateButton(),
           IconButton(
             icon: const Icon(Icons.swap_horiz),
             tooltip: 'Changer de profil',
@@ -146,6 +149,70 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ],
               ),
             ),
+    );
+  }
+
+  Widget _buildUpdateButton() {
+    return IconButton(
+      icon: const Icon(Icons.system_update_outlined),
+      tooltip: 'Vérifier les mises à jour',
+      onPressed: () async {
+        final scaffold = ScaffoldMessenger.of(context);
+        scaffold.showSnackBar(const SnackBar(content: Text('Vérification...')));
+        final update = await UpdateService().checkForUpdate();
+        if (!mounted) return;
+        if (update == null) {
+          scaffold.showSnackBar(const SnackBar(
+            content: Text('Aucune mise à jour disponible'),
+            backgroundColor: Colors.green,
+          ));
+          return;
+        }
+        final currentBuild = await UpdateService().getCurrentBuildNumber();
+        if (!mounted) return;
+        if (update.buildNumber <= currentBuild) {
+          scaffold.showSnackBar(const SnackBar(
+            content: Text('Vous avez la dernière version'),
+            backgroundColor: Colors.green,
+          ));
+          return;
+        }
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Mise à jour disponible'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Build #${update.buildNumber} disponible'),
+                const SizedBox(height: 8),
+                Text(update.releaseNotes, style: const TextStyle(fontSize: 12)),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Plus tard'),
+              ),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.download),
+                label: const Text('Télécharger'),
+                onPressed: () async {
+                  Navigator.pop(ctx);
+                  // Open GitHub release page in browser
+                  final url = Uri.parse(update.downloadUrl);
+                  if (await canLaunchUrl(url)) {
+                    await launchUrl(url);
+                  } else {
+                    scaffold.showSnackBar(const SnackBar(content: Text('Impossible d\'ouvrir le lien')));
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 

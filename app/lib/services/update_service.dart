@@ -1,87 +1,74 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:url_launcher/url_launcher.dart';
 
-/// Service de mise à jour automatique.
-/// Utilise l'API GitHub Releases (accessible partout)
-/// pour détecter les nouvelles versions de l'APK.
+class UpdateInfo {
+  final String latestVersion;
+  final String downloadUrl;
+  final String releaseNotes;
+  final int buildNumber;
+
+  UpdateInfo({
+    required this.latestVersion,
+    required this.downloadUrl,
+    required this.releaseNotes,
+    required this.buildNumber,
+  });
+}
+
 class UpdateService {
+  static const String _repo = 'Lodoapoza/SimuRH';
   static final UpdateService _instance = UpdateService._internal();
   factory UpdateService() => _instance;
   UpdateService._internal();
 
-  static const String _githubApi =
-      'https://api.github.com/repos/Lodoapoza/SimuRH/releases/tags/nightly';
-  static const String _prefKey = 'last_update_build';
-
-  /// Vérifie si une mise à jour est disponible.
-  /// Retourne l'URL de téléchargement si une nouvelle version existe, null sinon.
-  Future<String?> checkForUpdate() async {
+  Future<UpdateInfo?> checkForUpdate() async {
     try {
-      final info = await PackageInfo.fromPlatform();
-      final currentBuild = int.tryParse(info.buildNumber) ?? 0;
-
+      final url = Uri.parse('https://api.github.com/repos/$_repo/releases/tags/nightly');
       final response = await http.get(
-        Uri.parse(_githubApi),
-        headers: {'Accept': 'application/json'},
-      ).timeout(const Duration(seconds: 15));
+        url,
+        headers: {'Accept': 'application/vnd.github.v3+json'},
+      ).timeout(const Duration(seconds: 10));
 
       if (response.statusCode != 200) return null;
 
-      final data = json.decode(response.body) as Map<String, dynamic>;
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      final tagName = data['tag_name'] as String? ?? 'nightly';
+      final body = data['body'] as String? ?? '';
+      final assets = data['assets'] as List? ?? [];
 
-      // Extraire le numéro de build depuis le tag ou les notes
-      final tagName = data['tag_name'] as String? ?? '';
-      final notes = data['body'] as String? ?? '';
-
-      int remoteBuild = 0;
-      // Chercher "Build #N" dans les notes de release
-      final buildMatch = RegExp(r'Build #(\d+)').firstMatch(notes);
-      if (buildMatch != null) {
-        remoteBuild = int.tryParse(buildMatch.group(1)!) ?? 0;
-      }
-
-      // Vérifier qu'on n'a pas déjà notifié pour ce build
-      final prefs = await SharedPreferences.getInstance();
-      final lastNotified = prefs.getInt(_prefKey) ?? 0;
-
-      if (remoteBuild > currentBuild && remoteBuild > lastNotified) {
-        // Récupérer l'URL de l'APK
-        final assets = data['assets'] as List? ?? [];
-        for (final asset in assets) {
-          final name = asset['name'] as String? ?? '';
-          if (name == 'SimuRH.apk') {
-            final url = asset['browser_download_url'] as String?;
-            if (url != null) return url;
-          }
+      String? downloadUrl;
+      for (final asset in assets) {
+        if ((asset['name'] as String? ?? '').endsWith('.apk')) {
+          downloadUrl = asset['browser_download_url'] as String?;
+          break;
         }
       }
 
-      return null;
+      if (downloadUrl == null) return null;
+
+      // Extract build number from release notes or tag
+      final buildMatch = RegExp(r'Build #(\d+)').firstMatch(body);
+      final buildNumber = buildMatch != null ? int.parse(buildMatch.group(1)!) : 0;
+
+      return UpdateInfo(
+        latestVersion: tagName,
+        downloadUrl: downloadUrl,
+        releaseNotes: body,
+        buildNumber: buildNumber,
+      );
     } catch (_) {
-      return null; // Échec silencieux — on ne bloque pas l'app
+      return null;
     }
   }
 
-  /// Marque une version comme déjà notifiée.
-  Future<void> markNotified() async {
-    final info = await PackageInfo.fromPlatform();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_prefKey, int.tryParse(info.buildNumber) ?? 0);
-  }
-
-  /// Ouvre l'URL de téléchargement dans le navigateur.
-  Future<bool> openDownloadUrl(String url) async {
+  Future<int> getCurrentBuildNumber() async {
     try {
-      final uri = Uri.parse(url);
-      if (await canLaunchUrl(uri)) {
-        return await launchUrl(uri, mode: LaunchMode.externalApplication);
-      }
-      return false;
+      final info = await PackageInfo.fromPlatform();
+      final version = info.buildNumber;
+      return int.tryParse(version) ?? 0;
     } catch (_) {
-      return false;
+      return 0;
     }
   }
 }
