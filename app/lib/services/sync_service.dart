@@ -1,9 +1,6 @@
 import 'dart:io';
 import 'dart:async';
 import 'api_service.dart';
-import 'auth_service.dart';
-import 'db_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SyncService {
   static final SyncService _instance = SyncService._internal();
@@ -32,71 +29,28 @@ class SyncService {
     }
   }
 
-  /// Synchronizes all data (simulations, groups, submissions) between local and server.
+  /// Synchronizes all data — désactivée, mode 100% local.
   Future<void> syncAll() async {
-    if (!await isOnline()) {
-      return;
-    }
-
-    await syncSimulations();
-    await syncGroups();
-    await syncPendingSubmissions();
+    // Sync désactivée — mode 100% local
+    return;
   }
 
-  /// Synchronizes pending submissions from local to server.
+  /// Synchronizes pending submissions — désactivée, mode 100% local.
   Future<void> syncPendingSubmissions() async {
-    if (!await isOnline()) {
-      return;
-    }
-
-    final db = DbService();
-    final pendingSubmissions = await db.getPendingSubmissions();
-
-    for (var sub in pendingSubmissions) {
-      try {
-        // Send submission to server
-        final response = await ApiService().post('/submissions', sub);
-        // If successful, mark as synced
-        await db.markSubmissionAsSynced(sub['id']);
-      } catch (e) {
-        // Keep as pending for next retry
-        continue;
-      }
-    }
+    // Sync désactivée — mode 100% local
+    return;
   }
 
-  /// Synchronizes simulations from server to local cache.
+  /// Synchronizes simulations — désactivée, mode 100% local.
   Future<void> syncSimulations() async {
-    if (!await isOnline()) {
-      return;
-    }
-
-    try {
-      final simulations = await ApiService().getList('/simulations');
-      final db = DbService();
-      for (var sim in simulations) {
-        await db.cacheSimulation(sim);
-      }
-    } catch (e) {
-      // Handle error (e.g., log)
-    }
+    // Sync désactivée — mode 100% local
+    return;
   }
 
-  /// Synchronizes groups from server to local cache.
+  /// Synchronizes groups — désactivée, mode 100% local.
   Future<void> syncGroups() async {
-    if (!await isOnline()) {
-      return;
-    }
-
-    try {
-      final groups = await ApiService().getList('/groups');
-      final db = DbService();
-      for (var group in groups) {
-        await db.cacheGroup(group);
-      }
-    } catch (e) {
-      // Handle error
-    }
+    // Sync désactivée — mode 100% local
+    return;
   }
 
   /// Starts periodic synchronization at the specified interval.

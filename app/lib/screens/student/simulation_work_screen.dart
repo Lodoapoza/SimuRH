@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart' hide Simulation;
 import 'package:intl/intl.dart';
 import 'package:simurh/services/auth_service.dart';
-import 'package:simurh/services/api_service.dart';
 import 'package:simurh/services/db_service.dart';
 import 'package:simurh/services/sync_service.dart';
 import 'package:simurh/services/file_service.dart';
@@ -30,7 +29,6 @@ class SimulationWorkScreen extends StatefulWidget {
 class _SimulationWorkScreenState extends State<SimulationWorkScreen>
     with SingleTickerProviderStateMixin {
   final AuthService _authService = AuthService();
-  final ApiService _apiService = ApiService();
   final DbService _dbService = DbService();
   final SyncService _syncService = SyncService();
   final FileService _fileService = FileService();
@@ -126,36 +124,30 @@ class _SimulationWorkScreenState extends State<SimulationWorkScreen>
   }
 
   Future<void> _loadGroupFromServer(String simulationId) async {
-    try {
-      final response = await _apiService.get('simulations/$simulationId/group');
-      _group = Group.fromJson(response);
-      await _dbService.cacheGroup(response);
-    } catch (_) {
-      // Try loading from cache
-      final cachedGroups = await _dbService.query(
-        'groups_table',
-        where: 'simulation_id = ?',
-        whereArgs: [simulationId],
-      );
-      if (cachedGroups.isNotEmpty) {
-        // Find the user's group by checking members
-        final userId = _currentUser?.id;
-        if (userId != null) {
-          final memberships = await _dbService.query(
-            'group_members',
-            where: 'user_id = ?',
-            whereArgs: [userId],
+    // Mode 100% local — charger depuis le cache uniquement
+    final cachedGroups = await _dbService.query(
+      'groups_table',
+      where: 'simulation_id = ?',
+      whereArgs: [simulationId],
+    );
+    if (cachedGroups.isNotEmpty) {
+      // Find the user's group by checking members
+      final userId = _currentUser?.id;
+      if (userId != null) {
+        final memberships = await _dbService.query(
+          'group_members',
+          where: 'user_id = ?',
+          whereArgs: [userId],
+        );
+        if (memberships.isNotEmpty) {
+          final groupId = memberships.first['group_id'];
+          final groups = await _dbService.query(
+            'groups_table',
+            where: 'id = ?',
+            whereArgs: [groupId],
           );
-          if (memberships.isNotEmpty) {
-            final groupId = memberships.first['group_id'];
-            final groups = await _dbService.query(
-              'groups_table',
-              where: 'id = ?',
-              whereArgs: [groupId],
-            );
-            if (groups.isNotEmpty) {
-              _group = _buildGroupFromDb(groups.first, memberships);
-            }
+          if (groups.isNotEmpty) {
+            _group = _buildGroupFromDb(groups.first, memberships);
           }
         }
       }
@@ -176,22 +168,15 @@ class _SimulationWorkScreenState extends State<SimulationWorkScreen>
   }
 
   Future<void> _loadResources(String simulationId) async {
-    try {
-      final response = await _apiService.getList('simulations/$simulationId/resources');
-      _resources = response.map((e) => Resource.fromJson(e)).toList();
-      for (var res in _resources) {
-        await _dbService.cacheResource(res.toJson());
+    // Mode 100% local — charger depuis le cache uniquement
+    final cached = await _dbService.getCachedResources();
+    _resources = cached.map((e) {
+      try {
+        return Resource.fromJson(e);
+      } catch (_) {
+        return _buildResourceFromDb(e);
       }
-    } catch (_) {
-      final cached = await _dbService.getCachedResources();
-      _resources = cached.map((e) {
-        try {
-          return Resource.fromJson(e);
-        } catch (_) {
-          return _buildResourceFromDb(e);
-        }
-      }).toList();
-    }
+    }).toList();
   }
 
   // ── Build helpers ──
@@ -277,9 +262,12 @@ class _SimulationWorkScreenState extends State<SimulationWorkScreen>
     setState(() => _isTransferring = true);
 
     try {
-      await _apiService.post(
-        'groups/${_group!.id}/transfer-leader',
-        {'new_leader_id': newLeaderId},
+      // Mode 100% local : mettre à jour le leader dans groups_table
+      await _dbService.update(
+        'groups_table',
+        {'leader_id': newLeaderId},
+        where: 'id = ?',
+        whereArgs: [_group!.id],
       );
       await _refresh();
       if (mounted) {
@@ -320,9 +308,11 @@ class _SimulationWorkScreenState extends State<SimulationWorkScreen>
     if (confirmed != true) return;
 
     try {
-      await _apiService.post(
-        'groups/${_group!.id}/remove-member',
-        {'member_id': memberId},
+      // Mode 100% local : supprimer le membre de group_members
+      await _dbService.delete(
+        'group_members',
+        where: 'id = ?',
+        whereArgs: [memberId],
       );
       await _refresh();
       if (mounted) {
@@ -399,21 +389,33 @@ class _SimulationWorkScreenState extends State<SimulationWorkScreen>
     setState(() => _isLoading = true);
 
     try {
-      final body = <String, dynamic>{
+      final localSub = <String, dynamic>{
         'simulation_id': widget.simulation.id,
         'group_id': _group!.id,
+        'user_id': _currentUser?.id,
         'content': content,
         'status': 'submitted',
+        'file_path': _attachedFilePath,
+        'submitted_at': DateTime.now().toIso8601String(),
+        'is_pending_sync': 0,
       };
-      if (_attachedFilePath != null) {
-        body['file_path'] = _attachedFilePath;
-      }
+      await _dbService.insert('submissions', localSub);
 
-      final response = await _apiService.post('submissions', body);
-      await _dbService.cacheSubmission(response);
-
-      // Parse and update local state
-      _submission = Submission.fromJson(response);
+      // Update local state
+      _submission = Submission(
+        id: '',
+        groupId: _group!.id,
+        simulationId: widget.simulation.id,
+        content: content,
+        filePath: _attachedFilePath ?? '',
+        submittedAt: DateTime.now(),
+        syncedAt: null,
+        groupName: '',
+        leaderName: '',
+        totalScore: 0,
+        comments: null,
+        scores: {},
+      );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -424,33 +426,10 @@ class _SimulationWorkScreenState extends State<SimulationWorkScreen>
         );
       }
     } catch (e) {
-      // Offline — save locally as pending
-      try {
-        final localSub = {
-          'simulation_id': widget.simulation.id,
-          'group_id': _group!.id,
-          'user_id': _currentUser?.id,
-          'content': content,
-          'status': 'pending_sync',
-          'file_path': _attachedFilePath,
-          'submitted_at': DateTime.now().toIso8601String(),
-          'is_pending_sync': 1,
-        };
-        await _dbService.cacheSubmission(localSub);
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Rendu sauvegardé localement — sera synchronisé plus tard'),
-            ),
-          );
-        }
-      } catch (cacheError) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erreur : $e')),
-          );
-        }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur lors de la soumission : $e')),
+        );
       }
     } finally {
       setState(() => _isLoading = false);
