@@ -118,4 +118,47 @@ class LicenseService {
     await prefs.remove(_prefEtab);
     await prefs.remove(_prefExpiry);
   }
+
+  // ─── Méthodes de compatibilité (ancienne API) ────────────────────
+
+  /// Retourne le statut de la licence (ancienne API).
+  Future<Map<String, dynamic>> checkStatus() async {
+    final license = await getLicense();
+    final activated = license != null;
+    final expired = activated ? license.isExpired : false;
+    return {
+      'status': activated && !expired ? 'active' : 'inactive',
+      'type': 'license',
+      'student_count': 999,
+      'simulation_count': 999,
+      'expiry_year': license?.expiryYear ?? 0,
+      'establishment': license?.etablissement ?? '',
+    };
+  }
+
+  /// Ancienne API : retourne true si en mode trial.
+  /// Dans le nouveau modèle offline, on n'utilise que les clés.
+  static bool isTrialMode() => false;
+
+  /// Ancienne API : vérifie si on peut créer une simulation.
+  /// Retourne null si pas de limite, ou un int (nombre restant).
+  static Future<int?> canCreateSimulation() async {
+    final valid = await isValid();
+    return valid ? null : 0;
+  }
+
+  /// Ancienne API : achat de licence (CinetPay).
+  /// Dans le nouveau modèle, utiliser ActivationScreen avec une clé.
+  static Future<Map<String, dynamic>> purchaseLicense(
+      String etablissement, String email) async {
+    throw UnsupportedError(
+        'Le paiement en ligne n\'est plus disponible. '
+        'Utilisez la clé d\'activation fournie par votre administrateur.');
+  }
+
+  /// Ancienne API : vérification du paiement.
+  static Future<Map<String, dynamic>?> checkPaymentStatus(
+      String transactionId) async {
+    return null;
+  }
 }
