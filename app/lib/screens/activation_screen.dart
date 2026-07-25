@@ -16,6 +16,12 @@ class _ActivationScreenState extends State<ActivationScreen> {
   final _keyCtrl = TextEditingController();
   bool _loading = false;
   String? _error;
+  int _attempts = 0;
+  DateTime? _lockUntil;
+  static const int _maxAttempts = 5;
+  static const Duration _lockDuration = Duration(seconds: 30);
+
+  bool get _isLocked => _lockUntil != null && DateTime.now().isBefore(_lockUntil!);
 
   @override
   void dispose() {
@@ -35,10 +41,24 @@ class _ActivationScreenState extends State<ActivationScreen> {
       return;
     }
 
+    if (_isLocked) {
+      final remaining = _lockUntil!.difference(DateTime.now()).inSeconds + 1;
+      setState(() => _error = 'Trop de tentatives. Réessayez dans $remaining s');
+      return;
+    }
+
     setState(() { _loading = true; _error = null; });
 
     final valid = LicenseService.validate(etab, key);
     if (!valid) {
+      _attempts++;
+      if (_attempts >= _maxAttempts) {
+        _lockUntil = DateTime.now().add(_lockDuration);
+        _attempts = 0;
+        Future.delayed(_lockDuration, () {
+          if (mounted) setState(() => _lockUntil = null);
+        });
+      }
       setState(() { _loading = false; _error = 'Clé invalide ou erronée'; });
       return;
     }
@@ -150,11 +170,25 @@ class _ActivationScreenState extends State<ActivationScreen> {
                         const SizedBox(height: 12),
                         Text(_error!, style: const TextStyle(color: Colors.red)),
                       ],
+                      if (!_isLocked && _attempts > 0) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          'Tentatives : ${_maxAttempts - _attempts} restante(s)',
+                          style: const TextStyle(color: Colors.grey, fontSize: 12),
+                        ),
+                      ],
+                      if (_isLocked) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          'Verrouillé ${_lockUntil!.difference(DateTime.now()).inSeconds + 1}s',
+                          style: const TextStyle(color: Colors.orange, fontSize: 12),
+                        ),
+                      ],
                       const SizedBox(height: 20),
                       SizedBox(
                         height: 48,
                         child: FilledButton.icon(
-                          onPressed: _loading ? null : _activate,
+                          onPressed: (_loading || _isLocked) ? null : _activate,
                           icon: _loading
                               ? const SizedBox(
                                   width: 20, height: 20,
