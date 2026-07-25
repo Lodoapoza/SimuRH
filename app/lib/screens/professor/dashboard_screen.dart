@@ -106,6 +106,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
         backgroundColor: colorScheme.primary,
         iconTheme: IconThemeData(color: colorScheme.onPrimary),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.swap_horiz),
+            tooltip: 'Changer de profil',
+            onPressed: () => Navigator.pushReplacementNamed(context, '/home-gate'),
+          ),
           // Statut en ligne/hors ligne
           Padding(
             padding: const EdgeInsets.only(right: 12),

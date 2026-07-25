@@ -355,6 +355,11 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
           ],
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.swap_horiz),
+            tooltip: 'Changer de profil',
+            onPressed: () => Navigator.pushReplacementNamed(context, '/home-gate'),
+          ),
           if (!_isOnline)
             Padding(
               padding: const EdgeInsets.only(right: 12),

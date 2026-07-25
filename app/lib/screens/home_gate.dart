@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:simurh/models/local_profile.dart';
 import 'package:simurh/services/local_auth_service.dart';
+import 'package:simurh/services/db_service.dart';
+import 'package:simurh/services/group_service.dart';
 import 'package:simurh/screens/professor/dashboard_screen.dart';
 import 'package:simurh/screens/student/student_home_screen.dart';
 
@@ -37,7 +39,6 @@ class _HomeGateState extends State<HomeGate> {
     if (_loading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
-    // Si un profil actif existe, aller directement à la vue correspondante
     if (_activeProfile != null) {
       if (_activeProfile!.role == 'professor') {
         return const DashboardScreen();
@@ -45,7 +46,6 @@ class _HomeGateState extends State<HomeGate> {
         return const StudentHomeScreen();
       }
     }
-    // Sinon, écran de bienvenue
     return _buildWelcomeScreen();
   }
 
@@ -83,9 +83,23 @@ class _HomeGateState extends State<HomeGate> {
                   onPressed: () => _createProfessor(context),
                 ),
               ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  icon: const Icon(Icons.people),
+                  label: const Text('Je suis étudiant'),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.all(16),
+                    textStyle: const TextStyle(fontSize: 18),
+                  ),
+                  onPressed: () => _joinAsStudent(context),
+                ),
+              ),
               if (_professors.isNotEmpty) ...[
-                const SizedBox(height: 16),
-                const Text('Reprendre un profil existant :'),
+                const SizedBox(height: 24),
+                const Divider(),
+                const Text('Profils existants :'),
                 const SizedBox(height: 8),
                 ..._professors.map((p) => ListTile(
                   leading: const Icon(Icons.person_outline),
@@ -131,5 +145,89 @@ class _HomeGateState extends State<HomeGate> {
       await _auth.createProfessor(result);
       if (mounted) _load();
     }
+  }
+
+  Future<void> _joinAsStudent(BuildContext context) async {
+    // Étape 1: sélectionner une simulation
+    final db = DbService();
+    final sims = await db.getCachedSimulations();
+    if (sims.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Aucune simulation disponible')),
+        );
+      }
+      return;
+    }
+
+    final simId = await showDialog<int>(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        title: const Text('Choisissez une simulation'),
+        children: sims.map((s) => SimpleDialogOption(
+          onPressed: () => Navigator.pop(ctx, s['id'] as int),
+          child: ListTile(
+            title: Text(s['title'] as String? ?? 'Simulation'),
+            subtitle: Text(s['description'] as String? ?? ''),
+          ),
+        )).toList(),
+      ),
+    );
+    if (simId == null) return;
+
+    // Étape 2: sélectionner un groupe
+    final groupService = GroupService();
+    final groups = await groupService.getGroups(simId);
+    if (groups.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Aucun groupe disponible dans cette simulation')),
+        );
+      }
+      return;
+    }
+
+    final selectedGroup = await showDialog<dynamic>(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        title: const Text('Choisissez votre groupe'),
+        children: groups.map((g) => SimpleDialogOption(
+          onPressed: () => Navigator.pop(ctx, g),
+          child: ListTile(
+            title: Text(g.name),
+            subtitle: Text('${g.members.length} membres'),
+          ),
+        )).toList(),
+      ),
+    );
+    if (selectedGroup == null) return;
+
+    // Étape 3: sélectionner son nom parmi les membres
+    final members = selectedGroup.members;
+    if (members.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Ce groupe n\'a pas de membres')),
+        );
+      }
+      return;
+    }
+
+    final memberName = await showDialog<String>(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        title: const Text('Sélectionnez votre nom'),
+        children: members.map((m) => SimpleDialogOption(
+          onPressed: () => Navigator.pop(ctx, m.name),
+          child: ListTile(title: Text(m.name)),
+        )).toList(),
+      ),
+    );
+    if (memberName == null) return;
+
+    // Créer le profil étudiant et basculer dessus
+    final studentProfile = await _auth.createStudent(memberName, int.parse(selectedGroup.id));
+    await _auth.switchToProfile(studentProfile.id);
+    if (mounted) _load();
   }
 }
