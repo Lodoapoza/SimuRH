@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart' hide Simulation;
-import 'package:simurh/services/auth_service.dart';
-import 'package:simurh/services/api_service.dart';
+import 'package:simurh/services/local_auth_service.dart';
+import 'package:simurh/services/db_service.dart';
 import 'package:simurh/services/license_service.dart';
+import 'package:simurh/services/group_service.dart';
 import 'package:simurh/screens/professor/create_simulation_screen.dart';
 import 'package:simurh/screens/professor/simulation_detail_screen.dart';
 import 'package:simurh/screens/professor/resources_screen.dart';
-
-import 'package:simurh/screens/license/license_screen.dart';
+import 'package:simurh/screens/professor/group_management_screen.dart';
 import 'package:simurh/models/simulation.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -17,16 +17,14 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  final AuthService _authService = AuthService();
-  final ApiService _apiService = ApiService();
+  final LocalAuthService _auth = LocalAuthService();
+  final DbService _db = DbService();
 
-  User? _user;
+  String _userName = '';
   bool _isLoading = true;
   bool _isOnline = true;
   int _simulationCount = 0;
-  int _studentCount = 0;
   List<Simulation> _recentSimulations = [];
-  Map<String, dynamic>? _licenseStatus;
 
   @override
   void initState() {
@@ -37,54 +35,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
     try {
-      _user = await _authService.getCurrentUser();
-    } catch (_) {}
+      final profile = await _auth.getActiveProfile();
+      _userName = profile?.name ?? 'Professeur';
 
-    // Charger les stats depuis l'API (avec fallback offline)
-    try {
-      final statusData = await LicenseService().checkStatus();
-      _licenseStatus = statusData;
-      _studentCount = statusData['student_count'] as int? ?? 0;
-
-      // Charger les simulations
-      final simsData = await _apiService.getList('/simulations');
-      _simulationCount = simsData.length;
-      _recentSimulations = simsData
-          .map((j) => Simulation.fromJson(j))
-          .take(5)
-          .toList();
+      // Stats locales
+      final sims = await _db.getCachedSimulations();
+      _simulationCount = sims.length;
+      _recentSimulations = sims.take(5).map((j) => Simulation.fromJson(j)).toList();
 
       _isOnline = true;
     } catch (_) {
-      _isOnline = false;
+      _isOnline = true; // toujours en ligne (local)
     }
-
     if (mounted) setState(() => _isLoading = false);
   }
 
-  Future<void> _logout() async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Déconnexion'),
-        content: const Text('Voulez-vous vraiment vous déconnecter ?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Annuler'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Se déconnecter'),
-          ),
-        ],
-      ),
-    );
-    if (confirm == true) {
-      await _authService.logout();
-      if (mounted) {
-        Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
-      }
+  Future<void> _switchProfile() async {
+    await _auth.logout();
+    if (mounted) {
+      Navigator.of(context).pushNamedAndRemoveUntil('/home-gate', (route) => false);
     }
   }
 
@@ -96,13 +65,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       backgroundColor: colorScheme.surfaceContainerLowest,
       appBar: AppBar(
-        title: Text(
-          _user?.establishmentName ?? 'SimuRH',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: colorScheme.onPrimary,
-          ),
-        ),
+        title: Text('SimuRH', style: TextStyle(fontWeight: FontWeight.w600, color: colorScheme.onPrimary)),
         backgroundColor: colorScheme.primary,
         iconTheme: IconThemeData(color: colorScheme.onPrimary),
         actions: [
@@ -111,21 +74,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
             tooltip: 'Changer de profil',
             onPressed: () => Navigator.pushReplacementNamed(context, '/home-gate'),
           ),
-          // Statut en ligne/hors ligne
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: Icon(
-              _isOnline ? Icons.cloud_done : Icons.cloud_off,
-              color: _isOnline
-                  ? colorScheme.onPrimary.withOpacity(0.8)
-                  : Colors.orange[300],
-              size: 20,
-            ),
-          ),
           IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Se déconnecter',
-            onPressed: _logout,
+            icon: const Icon(Icons.exit_to_app),
+            tooltip: 'Changer de profil',
+            onPressed: _switchProfile,
           ),
         ],
       ),
@@ -180,16 +132,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    _user?.name ?? 'Professeur',
+                    _userName,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    _user?.establishmentName ?? '',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -239,14 +184,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
       children: [
         Expanded(child: _buildStatCard('Simulations', '$_simulationCount', Icons.assignment, colorScheme.primary, colorScheme)),
         const SizedBox(width: 12),
-        Expanded(child: _buildStatCard('Étudiants', '$_studentCount', Icons.people, colorScheme.tertiary, colorScheme)),
+        Expanded(child: _buildStatCard('Groupes', '...', Icons.people, colorScheme.tertiary, colorScheme)),
         const SizedBox(width: 12),
         Expanded(
           child: _buildStatCard(
             'Statut',
-            _isOnline ? 'En ligne' : 'Hors ligne',
-            _isOnline ? Icons.wifi : Icons.wifi_off,
-            _isOnline ? Colors.green : Colors.orange.shade700,
+            'Local',
+            Icons.phone_android,
+            Colors.green,
             colorScheme,
           ),
         ),
@@ -323,13 +268,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         );
       }),
-      _NavItem('Étudiants', Icons.people_outline, Colors.indigo, () {
-        // Navigation vers la gestion des groupes
-      }),
-      _NavItem('Licence', Icons.credit_card_outlined, Colors.purple, () {
+      _NavItem('Groupes', Icons.people_outline, Colors.indigo, () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const LicenseScreen()),
+          MaterialPageRoute(builder: (_) => const GroupManagementScreen(simulationId: 0)),
         );
       }),
     ];
@@ -491,7 +433,7 @@ class SimulationListScreen extends StatefulWidget {
 }
 
 class _SimulationListScreenState extends State<SimulationListScreen> {
-  final ApiService _apiService = ApiService();
+  final DbService _db = DbService();
   List<Simulation> _simulations = [];
   bool _isLoading = true;
 
@@ -504,7 +446,7 @@ class _SimulationListScreenState extends State<SimulationListScreen> {
   Future<void> _loadSimulations() async {
     setState(() => _isLoading = true);
     try {
-      final data = await _apiService.getList('/simulations');
+      final data = await _db.getCachedSimulations();
       if (mounted) {
         setState(() {
           _simulations = data.map((j) => Simulation.fromJson(j)).toList();
