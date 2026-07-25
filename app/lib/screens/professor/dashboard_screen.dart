@@ -7,6 +7,7 @@ import 'package:simurh/screens/professor/create_simulation_screen.dart';
 import 'package:simurh/screens/professor/simulation_detail_screen.dart';
 import 'package:simurh/screens/professor/resources_screen.dart';
 import 'package:simurh/screens/professor/group_management_screen.dart';
+import 'package:simurh/screens/professor/connectivity_screen.dart';
 import 'package:simurh/models/simulation.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -273,6 +274,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           context,
           MaterialPageRoute(builder: (_) => const GroupManagementScreen(simulationId: 0)),
         );
+      }),
+      _NavItem('Connectivité', Icons.cast, Colors.blue, () {
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const ConnectivityScreen()));
       }),
     ];
 

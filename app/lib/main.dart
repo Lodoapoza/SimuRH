@@ -3,7 +3,9 @@ import 'package:simurh/screens/activation_screen.dart';
 import 'package:simurh/screens/home_gate.dart';
 import 'package:simurh/screens/professor/dashboard_screen.dart';
 import 'package:simurh/screens/professor/create_simulation_screen.dart';
+import 'package:simurh/screens/professor/connectivity_screen.dart';
 import 'package:simurh/screens/student/student_home_screen.dart';
+import 'package:simurh/screens/student/connect_screen.dart';
 import 'package:simurh/services/license_service.dart';
 import 'package:simurh/services/sync_service.dart';
 
@@ -31,6 +33,8 @@ class SimuRhApp extends StatelessWidget {
         '/professor/dashboard': (context) => const DashboardScreen(),
         '/student/home': (context) => const StudentHomeScreen(),
         '/professor/create-simulation': (context) => const CreateSimulationScreen(),
+        '/professor/connectivity': (context) => const ConnectivityScreen(),
+        '/student/connect': (context) => const ConnectScreen(),
       },
     );
   }
