@@ -1,6 +1,4 @@
-import 'dart:io';
 import 'dart:async';
-import 'api_service.dart';
 
 class SyncService {
   static final SyncService _instance = SyncService._internal();
@@ -10,50 +8,18 @@ class SyncService {
   Timer? _periodicTimer;
   static const _syncInterval = Duration(minutes: 5);
 
-  /// Initializes the sync service.
-  static Future<void> init() async {
-    // Optionally start periodic sync if needed
-  }
+  static Future<void> init() async {}
 
-  /// Checks if the device is online by attempting to connect to the server.
-  static Future<bool> isOnline() async {
-    try {
-      final uri = Uri.parse(ApiService.baseUrl);
-      final host = uri.host;
-      final port = uri.port;
-      final socket = await Socket.connect(host, port, timeout: Duration(seconds: 5));
-      socket.close();
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
+  static Future<bool> isOnline() async => true;
 
-  /// Synchronizes all data — désactivée, mode 100% local.
-  Future<void> syncAll() async {
-    // Sync désactivée — mode 100% local
-    return;
-  }
+  Future<void> syncAll() async {}
 
-  /// Synchronizes pending submissions — désactivée, mode 100% local.
-  Future<void> syncPendingSubmissions() async {
-    // Sync désactivée — mode 100% local
-    return;
-  }
+  Future<void> syncPendingSubmissions() async {}
 
-  /// Synchronizes simulations — désactivée, mode 100% local.
-  Future<void> syncSimulations() async {
-    // Sync désactivée — mode 100% local
-    return;
-  }
+  Future<void> syncSimulations() async {}
 
-  /// Synchronizes groups — désactivée, mode 100% local.
-  Future<void> syncGroups() async {
-    // Sync désactivée — mode 100% local
-    return;
-  }
+  Future<void> syncGroups() async {}
 
-  /// Starts periodic synchronization at the specified interval.
   void startPeriodicSync() {
     _periodicTimer?.cancel();
     _periodicTimer = Timer.periodic(_syncInterval, (timer) async {
@@ -61,7 +27,6 @@ class SyncService {
     });
   }
 
-  /// Stops periodic synchronization.
   void stopPeriodicSync() {
     _periodicTimer?.cancel();
     _periodicTimer = null;

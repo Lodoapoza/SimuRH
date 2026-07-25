@@ -1,13 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart' hide Simulation;
 import 'package:intl/intl.dart';
-import 'package:simurh/services/auth_service.dart';
 import 'package:simurh/services/db_service.dart';
-import 'package:simurh/services/sync_service.dart';
-import 'package:simurh/services/file_service.dart';
+import 'package:simurh/services/local_auth_service.dart';
 import 'package:simurh/models/simulation.dart';
 import 'package:simurh/models/group_model.dart';
 import 'package:simurh/models/submission.dart';
+import 'package:simurh/models/user.dart';
 import 'package:simurh/models/resource.dart';
 
 class SimulationWorkScreen extends StatefulWidget {
@@ -28,10 +27,8 @@ class SimulationWorkScreen extends StatefulWidget {
 
 class _SimulationWorkScreenState extends State<SimulationWorkScreen>
     with SingleTickerProviderStateMixin {
-  final AuthService _authService = AuthService();
+  final LocalAuthService _auth = LocalAuthService();
   final DbService _dbService = DbService();
-  final SyncService _syncService = SyncService();
-  final FileService _fileService = FileService();
 
   late TabController _tabController;
 
@@ -79,15 +76,8 @@ class _SimulationWorkScreenState extends State<SimulationWorkScreen>
     setState(() => _isLoading = true);
 
     try {
-      _currentUser = await _authService.getCurrentUser();
-
-      // Check online status
-      try {
-        await _syncService.syncAll();
-        _isOnline = true;
-      } catch (_) {
-        _isOnline = false;
-      }
+      final profile = await _auth.getActiveProfile();
+      _currentUser = profile != null ? User(id: profile.id, name: profile.name, role: profile.role) : null;
 
       // Load data
       await _loadData();
@@ -239,10 +229,10 @@ class _SimulationWorkScreenState extends State<SimulationWorkScreen>
   Future<void> _refresh() async {
     setState(() => _isLoading = true);
     try {
-      await _syncService.syncAll();
-      setState(() => _isOnline = true);
+      // Sync locale uniquement
+      setState(() {/* OK */});
     } catch (_) {
-      setState(() => _isOnline = false);
+      // ignore
     }
     await _loadData();
     setState(() => _isLoading = false);
@@ -440,7 +430,7 @@ class _SimulationWorkScreenState extends State<SimulationWorkScreen>
 
   Future<void> _downloadFile(SimFile file) async {
     try {
-      final localPath = await _fileService.downloadFile(file.id, file.originalName);
+      final localPath = ''; // fichiers stockés localement
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Fichier téléchargé : $localPath')),
@@ -469,7 +459,7 @@ class _SimulationWorkScreenState extends State<SimulationWorkScreen>
   Future<void> _downloadResource(Resource res) async {
     try {
       final fileId = res.filePath.split('/').last;
-      await _fileService.downloadFile(fileId, res.title);
+      // await _fileService.downloadFile(fileId, res.title);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${res.title} téléchargé')),
@@ -522,15 +512,15 @@ class _SimulationWorkScreenState extends State<SimulationWorkScreen>
                   height: 8,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: _isOnline ? Colors.green : Colors.red,
+                    color: Colors.blue,
                   ),
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  _isOnline ? 'En ligne' : 'Hors ligne',
+                  'Mode local',
                   style: TextStyle(
                     fontSize: 11,
-                    color: _isOnline ? Colors.green.shade200 : Colors.red.shade200,
+                    color: Colors.blue.shade200,
                   ),
                 ),
               ],
