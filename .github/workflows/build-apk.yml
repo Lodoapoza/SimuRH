@@ -27,6 +27,10 @@ jobs:
           rm -rf app
           mv _template app
 
+      - name: 📝 Set build version
+        working-directory: app
+        run: sed -i "s/^version: .*/version: 1.0.${{ github.run_number }}+${{ github.run_number }}/" pubspec.yaml
+
       - name: 📦 Install dependencies
         working-directory: app
         run: flutter pub get

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:simurh/services/auth_service.dart';
+import 'package:simurh/services/update_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -44,6 +45,50 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     } else {
       setState(() => _initialCheck = false);
     }
+    // Vérifier les mises à jour en arrière-plan
+    _checkUpdate();
+  }
+
+  Future<void> _checkUpdate() async {
+    try {
+      final url = await UpdateService().checkForUpdate();
+      if (url != null && mounted) {
+        _showUpdateDialog(url);
+      }
+    } catch (_) {
+      // Échec silencieux
+    }
+  }
+
+  void _showUpdateDialog(String url) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Mise à jour disponible'),
+        content: const Text(
+          'Une nouvelle version de SimuRH est disponible. '
+          'Voulez-vous la télécharger maintenant ?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              UpdateService().markNotified();
+            },
+            child: const Text('Plus tard'),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              UpdateService().openDownloadUrl(url);
+              UpdateService().markNotified();
+            },
+            child: const Text('Télécharger'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _redirectUser(User user) {

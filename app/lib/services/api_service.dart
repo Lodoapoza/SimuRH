@@ -69,17 +69,19 @@ class ApiService {
     }
   }
 
+  static const Duration _timeout = Duration(seconds: 30);
+
   /// Performs a GET request to the API.
   Future<Map<String, dynamic>> get(String endpoint) async {
     final uri = Uri.parse('$_baseUrl$endpoint');
-    final response = await http.get(uri, headers: getHeaders());
+    final response = await http.get(uri, headers: getHeaders()).timeout(_timeout);
     return _handleResponse(response);
   }
 
   /// Performs a GET request expecting a list of data from the API.
   Future<List<Map<String, dynamic>>> getList(String endpoint) async {
     final uri = Uri.parse('$_baseUrl$endpoint');
-    final response = await http.get(uri, headers: getHeaders());
+    final response = await http.get(uri, headers: getHeaders()).timeout(_timeout);
     if (response.statusCode >= 200 && response.statusCode < 300) {
       final List<dynamic> data = json.decode(response.body);
       return data.cast<Map<String, dynamic>>();
@@ -104,7 +106,7 @@ class ApiService {
       String endpoint, Map<String, dynamic> body) async {
     final uri = Uri.parse('$_baseUrl$endpoint');
     final response =
-        await http.post(uri, headers: getHeaders(), body: json.encode(body));
+        await http.post(uri, headers: getHeaders(), body: json.encode(body)).timeout(_timeout);
     return _handleResponse(response);
   }
 
@@ -113,14 +115,14 @@ class ApiService {
       String endpoint, Map<String, dynamic> body) async {
     final uri = Uri.parse('$_baseUrl$endpoint');
     final response =
-        await http.put(uri, headers: getHeaders(), body: json.encode(body));
+        await http.put(uri, headers: getHeaders(), body: json.encode(body)).timeout(_timeout);
     return _handleResponse(response);
   }
 
   /// Performs a DELETE request to the API.
   Future<Map<String, dynamic>> delete(String endpoint) async {
     final uri = Uri.parse('$_baseUrl$endpoint');
-    final response = await http.delete(uri, headers: getHeaders());
+    final response = await http.delete(uri, headers: getHeaders()).timeout(_timeout);
     return _handleResponse(response);
   }
 
@@ -131,7 +133,7 @@ class ApiService {
       ..headers.addAll(getHeaders())
       ..files.add(await http.MultipartFile.fromPath('file', filePath)); // 'file' is the expected field name
 
-    final streamedResponse = await request.send();
+    final streamedResponse = await request.send().timeout(_timeout);
     final response = await http.Response.fromStream(streamedResponse);
 
     return _handleResponse(response);
