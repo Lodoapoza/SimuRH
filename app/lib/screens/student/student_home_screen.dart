@@ -1,11 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart' hide Simulation;
 import 'package:intl/intl.dart';
-import 'package:simurh/services/auth_service.dart';
-import 'package:simurh/services/api_service.dart';
 import 'package:simurh/services/db_service.dart';
-import 'package:simurh/services/sync_service.dart';
-import 'package:simurh/services/file_service.dart';
+import 'package:simurh/models/user.dart';
 import 'package:simurh/models/simulation.dart';
 import 'package:simurh/models/group_model.dart';
 import 'package:simurh/models/submission.dart';
@@ -24,11 +21,7 @@ class StudentHomeScreen extends StatefulWidget {
 }
 
 class _StudentHomeScreenState extends State<StudentHomeScreen> {
-  final AuthService _authService = AuthService();
-  final ApiService _apiService = ApiService();
   final DbService _dbService = DbService();
-  final SyncService _syncService = SyncService();
-  final FileService _fileService = FileService();
 
   User? _currentUser;
   bool _isLoading = true;
@@ -60,27 +53,26 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
     });
 
     try {
-      _currentUser = await _authService.getCurrentUser();
+      final activeProfiles = await _dbService.query('profiles', where: 'is_active = ?', whereArgs: [1]);
+      if (activeProfiles.isNotEmpty) {
+        final profile = activeProfiles.first;
+        _currentUser = User(
+          id: '${profile['id']}',
+          establishmentId: '',
+          name: '${profile['name']}',
+          email: '',
+          phone: '',
+          passwordHash: '',
+          role: '${profile['role']}',
+        );
+      }
 
-      // Try to sync from server first
-      await _syncAndReload();
+      await _loadFromCache();
     } catch (e) {
-      // Offline or error — fall back to cache
       await _loadFromCache();
     }
 
     setState(() => _isLoading = false);
-  }
-
-  Future<void> _syncAndReload() async {
-    try {
-      await _syncService.syncAll();
-      setState(() => _isOnline = true);
-    } catch (_) {
-      setState(() => _isOnline = false);
-    }
-
-    await _loadFromCache();
   }
 
   Future<void> _loadFromCache() async {
@@ -308,15 +300,22 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
   Future<void> _joinSimulation(String code) async {
     setState(() => _isLoading = true);
     try {
-      final response = await _apiService.get('simulations/join/$code');
-      // Cache the joined simulation data
-      await _dbService.cacheSimulation(response);
-      // Reload everything
-      await _loadFromCache();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Vous avez rejoint la simulation !')),
-        );
+      final sims = await _dbService.query('simulations', where: 'code = ?', whereArgs: [code]);
+      if (sims.isNotEmpty) {
+        final sim = sims.first;
+        await _dbService.cacheSimulation(sim);
+        await _loadFromCache();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Vous avez rejoint la simulation !')),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Code de simulation invalide')),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {

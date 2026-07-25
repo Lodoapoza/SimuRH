@@ -1,8 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:simurh/services/api_service.dart';
-import 'package:simurh/services/file_service.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:simurh/services/db_service.dart';
 import 'package:simurh/models/resource.dart';
 
 class ResourcesScreen extends StatefulWidget {
@@ -13,8 +14,7 @@ class ResourcesScreen extends StatefulWidget {
 }
 
 class _ResourcesScreenState extends State<ResourcesScreen> {
-  final ApiService _apiService = ApiService();
-  final FileService _fileService = FileService();
+  final DbService _db = DbService();
 
   bool _isLoading = true;
   bool _isUploading = false;
@@ -36,7 +36,7 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
     });
 
     try {
-      final response = await _apiService.getList('resources');
+      final response = await _db.query('resources');
       setState(() {
         _resources = response.map((e) => Resource.fromJson(e)).toList();
         _isLoading = false;
@@ -139,16 +139,23 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
     setState(() => _isUploading = true);
 
     try {
+      String? localPath;
       if (filePath.isNotEmpty) {
-        // Upload with file via multipart using direct HTTP call
-        await _apiService.uploadFile('resources', filePath);
-      } else {
-        // Create resource without file
-        await _apiService.post('resources', {
-          'title': title,
-          'description': '',
-        });
+        final dir = Directory('${(await getApplicationDocumentsDirectory()).path}/resources');
+        if (!await dir.exists()) {
+          await dir.create(recursive: true);
+        }
+        final destFile = File('${dir.path}/$fileName');
+        await File(filePath).copy(destFile.path);
+        localPath = destFile.path;
       }
+
+      await _db.insert('resources', {
+        'title': title,
+        'description': '',
+        'url': localPath ?? '',
+        'file_type': fileName.split('.').last,
+      });
 
       await _loadResources();
 
@@ -179,17 +186,32 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
     setState(() => _downloadingIds.add(res.id));
 
     try {
-      final fileId = res.filePath.split('/').last;
-      await _fileService.downloadFile(fileId, res.title);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${res.title} téléchargé')),
-        );
+      if (res.filePath.isNotEmpty) {
+        final localFile = File(res.filePath);
+        if (await localFile.exists()) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('${res.title} disponible localement')),
+            );
+          }
+        } else {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Fichier introuvable')),
+            );
+          }
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Aucun fichier associé')),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur de téléchargement : $e')),
+          SnackBar(content: Text('Erreur : $e')),
         );
       }
     } finally {
@@ -230,7 +252,7 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
     setState(() => _deletingIds.add(res.id));
 
     try {
-      await _apiService.delete('resources/${res.id}');
+      await _db.delete('resources', where: 'id = ?', whereArgs: [res.id]);
       setState(() {
         _resources.removeWhere((r) => r.id == res.id);
       });

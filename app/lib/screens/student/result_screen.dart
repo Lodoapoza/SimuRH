@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart' hide Simulation;
 import 'package:intl/intl.dart';
-import 'package:simurh/services/api_service.dart';
 import 'package:simurh/services/db_service.dart';
 import 'package:simurh/models/simulation.dart';
 import 'package:simurh/models/submission.dart';
@@ -26,7 +25,6 @@ class ResultScreen extends StatefulWidget {
 }
 
 class _ResultScreenState extends State<ResultScreen> {
-  final ApiService _apiService = ApiService();
   final DbService _dbService = DbService();
 
   bool _isLoading = false;
@@ -46,35 +44,41 @@ class _ResultScreenState extends State<ResultScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // Load evaluation from API
+      // Load evaluation from local DB
       if (_evaluation == null && widget.submission != null) {
-        try {
-          final evalData = await _apiService.get(
-            'submissions/${widget.submission!.id}/evaluation',
-          );
-          _evaluation = Evaluation.fromJson(evalData);
-        } catch (_) {
-          // Try cache
-          final cachedEvals = await _dbService.getCachedEvaluations();
-          if (cachedEvals.isNotEmpty) {
-            final relevant = cachedEvals.where(
-              (e) => '${e['submission_id']}' == widget.submission!.id,
-            ).toList();
-            if (relevant.isNotEmpty) {
-              _evaluation = Evaluation.fromJson(relevant.first);
-            }
-          }
+        final evalData = await _dbService.query(
+          'evaluations',
+          where: 'submission_id = ?',
+          whereArgs: [widget.submission!.id],
+        );
+        if (evalData.isNotEmpty) {
+          _evaluation = Evaluation.fromJson(evalData.first);
         }
       }
 
-      // Load rankings from API
-      try {
-        final rankingData = await _apiService.getList(
-          'simulations/${widget.simulation.id}/ranking',
-        );
-        _rankings = rankingData.map((e) => RankingEntry.fromJson(e)).toList();
-      } catch (_) {
-        // Keep whatever we have from widget
+      // Load rankings from local DB
+      final allEvals = await _dbService.query('evaluations');
+      if (allEvals.isNotEmpty && widget.simulation.id.isNotEmpty) {
+        final allRankings = allEvals.map((e) {
+          return RankingEntry(
+            groupName: '${e['group_name'] ?? 'Groupe'}',
+            totalScore: (e['score'] as num?)?.toDouble() ?? 0,
+            evaluatedAt: DateTime.now(),
+            memberCount: 0,
+            rank: 0,
+          );
+        }).toList();
+        allRankings.sort((a, b) => b.totalScore.compareTo(a.totalScore));
+        for (int i = 0; i < allRankings.length; i++) {
+          allRankings[i] = RankingEntry(
+            groupName: allRankings[i].groupName,
+            totalScore: allRankings[i].totalScore,
+            evaluatedAt: allRankings[i].evaluatedAt,
+            memberCount: allRankings[i].memberCount,
+            rank: i + 1,
+          );
+        }
+        _rankings = allRankings;
       }
     } catch (e) {
       setState(() => _errorMessage = 'Erreur : $e');

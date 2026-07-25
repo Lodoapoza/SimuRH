@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:simurh/services/api_service.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 import 'package:simurh/services/db_service.dart';
-import 'package:simurh/services/file_service.dart';
 import 'package:simurh/models/resource.dart';
 
 class ResourcesViewScreen extends StatefulWidget {
@@ -15,9 +15,7 @@ class ResourcesViewScreen extends StatefulWidget {
 }
 
 class _ResourcesViewScreenState extends State<ResourcesViewScreen> {
-  final ApiService _apiService = ApiService();
   final DbService _dbService = DbService();
-  final FileService _fileService = FileService();
 
   bool _isLoading = true;
   bool _isOnline = true;
@@ -37,48 +35,16 @@ class _ResourcesViewScreenState extends State<ResourcesViewScreen> {
     try {
       if (widget.resources != null && widget.resources!.isNotEmpty) {
         _resources = widget.resources!;
-      }
-
-      // Try to fetch latest from API
-      try {
-        final response = await _apiService.getList('resources');
-        final apiResources = response.map((e) => Resource.fromJson(e)).toList();
-
-        // Cache them
-        for (var res in apiResources) {
-          await _dbService.cacheResource(res.toJson());
-        }
-
-        // Cache the resource file data for offline
-        for (var res in apiResources) {
-          await _dbService.insert('resources', {
-            'id': res.id,
-            'title': res.title,
-            'description': res.description,
-            'url': res.filePath,
-            'file_type': res.fileType,
-            'created_at': res.uploadedAt.toIso8601String(),
-          });
-        }
-
-        setState(() {
-          _resources = apiResources;
-          _isOnline = true;
-        });
-      } catch (_) {
-        setState(() => _isOnline = false);
-
-        // Load from cache if we don't have data yet
-        if (_resources.isEmpty) {
-          final cached = await _dbService.getCachedResources();
-          _resources = cached.map((e) {
-            try {
-              return Resource.fromJson(e);
-            } catch (_) {
-              return _buildResourceFromDb(e);
-            }
-          }).toList();
-        }
+      } else {
+        // Load from local DB
+        final cached = await _dbService.getCachedResources();
+        _resources = cached.map((e) {
+          try {
+            return Resource.fromJson(e);
+          } catch (_) {
+            return _buildResourceFromDb(e);
+          }
+        }).toList();
       }
     } catch (e) {
       setState(() => _errorMessage = 'Erreur : $e');
@@ -106,54 +72,61 @@ class _ResourcesViewScreenState extends State<ResourcesViewScreen> {
   }
 
   Future<void> _openResource(Resource res) async {
-    // Check if the file is already cached
-    final fileId = res.filePath.split('/').last;
-    final cachedPath = await _fileService.getCachedFilePath(fileId);
-
-    if (cachedPath != null) {
-      // File is already cached — show info
-      if (mounted) {
-        _showFileInfo(res, cachedPath);
+    // Check if the file exists locally
+    if (res.filePath.isNotEmpty) {
+      final localFile = File(res.filePath);
+      if (await localFile.exists()) {
+        if (mounted) {
+          _showFileInfo(res, res.filePath);
+        }
+        return;
       }
-      return;
     }
 
-    // Need to download
-    await _downloadResource(res);
+    // Look in resources directory
+    final dir = Directory('${(await getApplicationDocumentsDirectory()).path}/resources');
+    if (await dir.exists()) {
+      final files = await dir.list().toList();
+      for (var entity in files) {
+        if (entity is File && entity.path.contains(res.id)) {
+          if (mounted) {
+            _showFileInfo(res, entity.path);
+          }
+          return;
+        }
+      }
+    }
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Fichier non trouvé localement')),
+      );
+    }
   }
 
   Future<void> _downloadResource(Resource res) async {
     setState(() => _downloadingIds.add(res.id));
 
     try {
-      final fileId = res.filePath.split('/').last;
-      final localPath = await _fileService.downloadFile(fileId, res.title);
+      if (res.filePath.isNotEmpty) {
+        final localFile = File(res.filePath);
+        if (await localFile.exists()) {
+          if (mounted) {
+            _showFileInfo(res, res.filePath);
+          }
+          return;
+        }
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${res.title} téléchargé avec succès'),
-            backgroundColor: Colors.green,
-            action: SnackBarAction(
-              label: 'Ouvrir',
-              textColor: Colors.white,
-              onPressed: () => _showFileInfo(res, localPath),
-            ),
-          ),
+          SnackBar(content: Text('Fichier non disponible localement')),
         );
       }
     } catch (e) {
       if (mounted) {
-        // Check if already cached (download might have failed but file exists)
-        final fileId = res.filePath.split('/').last;
-        final cachedPath = await _fileService.getCachedFilePath(fileId);
-        if (cachedPath != null) {
-          _showFileInfo(res, cachedPath);
-          return;
-        }
-
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur de téléchargement : $e')),
+          SnackBar(content: Text('Erreur : $e')),
         );
       }
     } finally {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:simurh/services/api_service.dart';
+import 'package:simurh/services/db_service.dart';
 import 'package:simurh/services/file_service.dart';
 import 'package:simurh/models/simulation.dart';
 import 'package:simurh/models/group_model.dart';
@@ -28,7 +28,7 @@ class EvaluationScreen extends StatefulWidget {
 }
 
 class _EvaluationScreenState extends State<EvaluationScreen> {
-  final ApiService _apiService = ApiService();
+  final DbService _db = DbService();
   final FileService _fileService = FileService();
   final _commentController = TextEditingController();
 
@@ -107,12 +107,14 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
       };
 
       if (_isEditMode && widget.existingEvaluation != null) {
-        await _apiService.put(
-          'evaluations/${widget.existingEvaluation!.id}',
+        await _db.update(
+          'evaluations',
           body,
+          where: 'id = ?',
+          whereArgs: [widget.existingEvaluation!.id],
         );
       } else {
-        await _apiService.post('evaluations', body);
+        await _db.insert('evaluations', body);
       }
 
       if (mounted) {
