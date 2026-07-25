@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:shelf/shelf.dart' as shelf;
+import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:simurh/services/local_server_service.dart';
 import 'package:simurh/services/db_service.dart';
@@ -13,56 +13,61 @@ class LocalServerRoutes {
   Router get router {
     final r = Router();
 
-    shelf.Middleware _authMiddleware(shelf.Handler inner) {
-      return (shelf.Request req) {
-        final token = req.headers['authorization']?.replaceFirst('Bearer ', '');
-        if (token == null || !_server.isTokenValid(token)) {
-          return shelf.Response.unauthorized('{"error": "Non autorisé"}',
-              headers: {'Content-Type': 'application/json'});
-        }
-        return inner(req);
+    Middleware authMiddleware() {
+      return (Handler inner) {
+        return (Request req) async {
+          final token = req.headers['authorization']?.replaceFirst('Bearer ', '');
+          if (token == null || !_server.isTokenValid(token)) {
+            return Response.unauthorized('{"error": "Non autorisé"}',
+                headers: {'Content-Type': 'application/json'});
+          }
+          return await inner(req);
+        };
       };
     }
 
-    r.get('/api/health', (shelf.Request req) {
-      return shelf.Response.ok(
+    final auth = authMiddleware();
+
+    r.get('/api/health', (Request req) {
+      return Response.ok(
           jsonEncode({'status': 'ok', 'version': '1.0.0'}),
           headers: {'Content-Type': 'application/json'});
     });
 
-    r.get('/api/simulations', _authMiddleware((req) async {
+    r.get('/api/simulations', auth((Request req) async {
       try {
         final sims = await _db.getCachedSimulations();
-        return shelf.Response.ok(jsonEncode(sims),
+        return Response.ok(jsonEncode(sims),
             headers: {'Content-Type': 'application/json'});
       } catch (e) {
-        return shelf.Response.internalServerError(
+        return Response.internalServerError(
             body: jsonEncode({'error': e.toString()}),
             headers: {'Content-Type': 'application/json'});
       }
     }));
 
-    r.get('/api/simulations/<simId>', _authMiddleware((req, simId) async {
+    r.get('/api/simulations/<simId>', auth((Request req) async {
+      final simId = req.params['simId']!;
       try {
         final results = await _db.query('simulations',
             where: 'id = ?', whereArgs: [int.tryParse(simId) ?? 0]);
         if (results.isEmpty) {
-          return shelf.Response.notFound('{"error": "Simulation not found"}',
+          return Response.notFound('{"error": "Not found"}',
               headers: {'Content-Type': 'application/json'});
         }
-        return shelf.Response.ok(jsonEncode(results.first),
+        return Response.ok(jsonEncode(results.first),
             headers: {'Content-Type': 'application/json'});
       } catch (e) {
-        return shelf.Response.internalServerError(
+        return Response.internalServerError(
             body: jsonEncode({'error': e.toString()}),
             headers: {'Content-Type': 'application/json'});
       }
     }));
 
-    r.get('/api/groups/<simId>', _authMiddleware((req, simId) async {
+    r.get('/api/groups/<simId>', auth((Request req) async {
+      final simId = req.params['simId']!;
       try {
-        final groups = await _groupService
-            .getGroups(int.tryParse(simId) ?? 0);
+        final groups = await _groupService.getGroups(int.tryParse(simId) ?? 0);
         final data = groups.map((g) => {
           'id': g.id,
           'name': g.name,
@@ -72,16 +77,16 @@ class LocalServerRoutes {
             'student_name': m.name,
           }).toList(),
         }).toList();
-        return shelf.Response.ok(jsonEncode(data),
+        return Response.ok(jsonEncode(data),
             headers: {'Content-Type': 'application/json'});
       } catch (e) {
-        return shelf.Response.internalServerError(
+        return Response.internalServerError(
             body: jsonEncode({'error': e.toString()}),
             headers: {'Content-Type': 'application/json'});
       }
     }));
 
-    r.post('/api/submissions', _authMiddleware((req) async {
+    r.post('/api/submissions', auth((Request req) async {
       try {
         final payload = jsonDecode(await req.readAsString()) as Map<String, dynamic>;
         final submission = {
@@ -93,17 +98,17 @@ class LocalServerRoutes {
           'is_pending_sync': 0,
         };
         await _db.insert('submissions', submission);
-        return shelf.Response.ok(
+        return Response.ok(
             jsonEncode({'status': 'received', 'message': 'Soumission enregistrée'}),
             headers: {'Content-Type': 'application/json'});
       } catch (e) {
-        return shelf.Response.internalServerError(
+        return Response.internalServerError(
             body: jsonEncode({'error': e.toString()}),
             headers: {'Content-Type': 'application/json'});
       }
     }));
 
-    r.get('/api/submissions', _authMiddleware((req) async {
+    r.get('/api/submissions', auth((Request req) async {
       try {
         final groupId = req.url.queryParameters['groupId'];
         List<Map<String, dynamic>> results;
@@ -114,16 +119,16 @@ class LocalServerRoutes {
         } else {
           results = await _db.query('submissions');
         }
-        return shelf.Response.ok(jsonEncode(results),
+        return Response.ok(jsonEncode(results),
             headers: {'Content-Type': 'application/json'});
       } catch (e) {
-        return shelf.Response.internalServerError(
+        return Response.internalServerError(
             body: jsonEncode({'error': e.toString()}),
             headers: {'Content-Type': 'application/json'});
       }
     }));
 
-    r.get('/api/evaluations', _authMiddleware((req) async {
+    r.get('/api/evaluations', auth((Request req) async {
       try {
         final groupId = req.url.queryParameters['groupId'];
         List<Map<String, dynamic>> results;
@@ -134,10 +139,10 @@ class LocalServerRoutes {
         } else {
           results = await _db.query('evaluations');
         }
-        return shelf.Response.ok(jsonEncode(results),
+        return Response.ok(jsonEncode(results),
             headers: {'Content-Type': 'application/json'});
       } catch (e) {
-        return shelf.Response.internalServerError(
+        return Response.internalServerError(
             body: jsonEncode({'error': e.toString()}),
             headers: {'Content-Type': 'application/json'});
       }
