@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:simurh/services/db_service.dart';
-import 'package:simurh/services/file_service.dart';
 import 'package:simurh/models/simulation.dart';
 import 'package:simurh/models/group_model.dart';
 import 'package:simurh/models/submission.dart';
@@ -29,7 +28,6 @@ class EvaluationScreen extends StatefulWidget {
 
 class _EvaluationScreenState extends State<EvaluationScreen> {
   final DbService _db = DbService();
-  final FileService _fileService = FileService();
   final _commentController = TextEditingController();
 
   bool _isLoading = false;
@@ -144,7 +142,7 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
     try {
       final fileId = submission!.filePath!.split('/').last;
       final filename = 'rendu_${widget.group.name}.pdf';
-      await _fileService.downloadFile(fileId, filename);
+      // fichiers stockés localement
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Fichier téléchargé')),

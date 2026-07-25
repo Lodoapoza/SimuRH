@@ -77,7 +77,7 @@ class _SimulationWorkScreenState extends State<SimulationWorkScreen>
 
     try {
       final profile = await _auth.getActiveProfile();
-      _currentUser = profile != null ? User(id: profile.id, name: profile.name, role: profile.role) : null;
+      _currentUser = profile != null ? User(id: '${profile.id}', establishmentId: '', name: profile.name, email: '', phone: '', passwordHash: '', role: profile.role) : null;
 
       // Load data
       await _loadData();

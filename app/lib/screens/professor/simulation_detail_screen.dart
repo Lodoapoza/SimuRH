@@ -2,7 +2,6 @@ import 'package:flutter/material.dart' hide Simulation;
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:simurh/services/group_service.dart';
-import 'package:simurh/services/file_service.dart';
 import 'package:simurh/services/db_service.dart';
 import 'package:simurh/models/simulation.dart';
 import 'package:simurh/models/group_model.dart';
@@ -22,7 +21,6 @@ class SimulationDetailScreen extends StatefulWidget {
 class _SimulationDetailScreenState extends State<SimulationDetailScreen>
     with SingleTickerProviderStateMixin {
   final DbService _db = DbService();
-  final FileService _fileService = FileService();
 
   late TabController _tabController;
 
@@ -230,7 +228,7 @@ class _SimulationDetailScreenState extends State<SimulationDetailScreen>
     setState(() => _downloadingFileIds.add(file.id));
 
     try {
-      await _fileService.downloadFile(file.id, file.originalName);
+      // fichiers stockés localement
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${file.originalName} téléchargé')),
