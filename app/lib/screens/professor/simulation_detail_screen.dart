@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart' hide Simulation;
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:simurh/services/api_service.dart';
+import 'package:simurh/services/group_service.dart';
 import 'package:simurh/services/file_service.dart';
 import 'package:simurh/services/db_service.dart';
 import 'package:simurh/models/simulation.dart';
@@ -21,9 +21,8 @@ class SimulationDetailScreen extends StatefulWidget {
 
 class _SimulationDetailScreenState extends State<SimulationDetailScreen>
     with SingleTickerProviderStateMixin {
-  final ApiService _apiService = ApiService();
+  final DbService _db = DbService();
   final FileService _fileService = FileService();
-  final DbService _dbService = DbService();
 
   late TabController _tabController;
 
@@ -73,65 +72,47 @@ class _SimulationDetailScreenState extends State<SimulationDetailScreen>
 
   Future<void> _loadSimulation() async {
     try {
-      final response = await _apiService.get('simulations/${widget.simulationId}');
-      _simulation = Simulation.fromJson(response);
-      _simFiles = _simulation!.files;
+      final results = await _db.query('simulations',
+          where: 'id = ?',
+          whereArgs: [int.tryParse(widget.simulationId)]);
+      if (results.isNotEmpty) {
+        _simulation = Simulation.fromJson(results.first);
+        _simFiles = _simulation!.files;
+      }
       setState(() => _isOnline = true);
     } catch (_) {
       setState(() => _isOnline = false);
-      // Try cache
-      try {
-        final cached = await _dbService.getCachedSimulation(widget.simulationId);
-        if (cached != null) {
-          _simulation = Simulation.fromJson(cached);
-        }
-      } catch (_) {}
     }
   }
 
   Future<void> _loadGroups() async {
     try {
-      final response =
-          await _apiService.getList('groups?simulation=${widget.simulationId}');
-      _groups = response.map((e) => Group.fromJson(e)).toList();
+      _groups = await GroupService().getGroups(int.parse(widget.simulationId));
 
       // Load submissions for each group
       for (final group in _groups) {
         try {
-          final subResponse = await _apiService
-              .get('submissions?group=${group.id}&simulation=${widget.simulationId}');
-          final submission = Submission.fromJson(subResponse);
-          _submissionsByGroup[group.id] = submission;
+          final subResults = await _db.query('submissions',
+              where: 'group_id = ? AND simulation_id = ?',
+              whereArgs: [int.tryParse(group.id), int.tryParse(widget.simulationId)]);
+          if (subResults.isNotEmpty) {
+            final submission = Submission.fromJson(subResults.first);
+            _submissionsByGroup[group.id] = submission;
+          }
         } catch (_) {
           // No submission yet for this group
         }
       }
-    } catch (_) {
-      // Try cache
-      try {
-        final cached = await _dbService.getCachedGroups();
-        final simGroups = cached
-            .where((g) => '${g['simulation_id']}' == widget.simulationId)
-            .toList();
-        _groups = simGroups.map((e) => _buildGroupFromDb(e)).toList();
-      } catch (_) {}
-    }
+    } catch (_) {}
   }
 
   Future<void> _loadEvaluations() async {
     try {
-      final response =
-          await _apiService.getList('evaluations?simulation=${widget.simulationId}');
-      _evaluations = response.map((e) => Evaluation.fromJson(e)).toList();
-    } catch (_) {
-      try {
-        final cached = await _dbService.getCachedEvaluations();
-        _evaluations = cached
-            .where((e) => '${e['simulation_id']}' == widget.simulationId)
-            .map((e) => Evaluation.fromJson(e))
-            .toList();
-      } catch (_) {}
-    }
+      final results = await _db.query('evaluations',
+          where: 'submission_id IN (SELECT id FROM submissions WHERE simulation_id = ?)',
+          whereArgs: [int.tryParse(widget.simulationId)]);
+      _evaluations = results.map((e) => Evaluation.fromJson(e)).toList();
+    } catch (_) {}
   }
 
   Group _buildGroupFromDb(Map<String, dynamic> data) {
@@ -177,7 +158,9 @@ class _SimulationDetailScreenState extends State<SimulationDetailScreen>
     if (confirmed != true) return;
 
     try {
-      await _apiService.post('simulations/${widget.simulationId}/launch', {});
+      await _db.update('simulations', {'status': 'active'},
+          where: 'id = ?',
+          whereArgs: [int.tryParse(widget.simulationId)]);
       await _loadSimulation();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -222,7 +205,9 @@ class _SimulationDetailScreenState extends State<SimulationDetailScreen>
     if (confirmed != true) return;
 
     try {
-      await _apiService.post('simulations/${widget.simulationId}/close', {});
+      await _db.update('simulations', {'status': 'closed'},
+          where: 'id = ?',
+          whereArgs: [int.tryParse(widget.simulationId)]);
       await _loadSimulation();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
