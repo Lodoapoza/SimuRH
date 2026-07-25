@@ -21,7 +21,7 @@ class DbService {
     final path = join(dbPath, 'simurh_offline.db');
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -132,11 +132,32 @@ class DbService {
         FOREIGN KEY (simulation_id) REFERENCES simulations(id) ON DELETE CASCADE
       )
     ''');
+
+    await db.execute('''
+      CREATE TABLE profiles(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        role TEXT NOT NULL,
+        group_id INTEGER,
+        is_active INTEGER DEFAULT 0,
+        created_at TEXT NOT NULL
+      )
+    ''');
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    // Migration logic will go here if schema changes in future versions
-    // For now, no migration needed as it's version 1.
+    if (oldVersion < 2) {
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS profiles(
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
+          role TEXT NOT NULL,
+          group_id INTEGER,
+          is_active INTEGER DEFAULT 0,
+          created_at TEXT NOT NULL
+        )
+      ''');
+    }
   }
 
   // --- Generic CRUD Operations ---

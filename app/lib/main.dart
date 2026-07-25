@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:simurh/screens/activation_screen.dart';
-import 'package:simurh/screens/auth/login_screen.dart';
+import 'package:simurh/screens/home_gate.dart';
 import 'package:simurh/screens/professor/dashboard_screen.dart';
 import 'package:simurh/screens/professor/create_simulation_screen.dart';
 import 'package:simurh/screens/student/student_home_screen.dart';
-import 'package:simurh/services/auth_service.dart';
 import 'package:simurh/services/license_service.dart';
 import 'package:simurh/services/sync_service.dart';
 
@@ -28,7 +27,7 @@ class SimuRhApp extends StatelessWidget {
       home: const _StartupGate(),
       routes: {
         '/activation': (context) => const ActivationScreen(),
-        '/login': (context) => const LoginScreen(),
+        '/home-gate': (context) => const HomeGate(),
         '/professor/dashboard': (context) => const DashboardScreen(),
         '/student/home': (context) => const StudentHomeScreen(),
         '/professor/create-simulation': (context) => const CreateSimulationScreen(),
@@ -67,6 +66,6 @@ class _StartupGateState extends State<_StartupGate> {
     if (!_activated!) {
       return const ActivationScreen();
     }
-    return const LoginScreen();
+    return const HomeGate();
   }
 }
