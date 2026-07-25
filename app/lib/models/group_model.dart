@@ -1,4 +1,30 @@
-import 'dart:convert';
+class Member {
+  final String id;
+  final String name;
+  final String email;
+  final bool isLeader;
+
+  Member({
+    required this.id,
+    required this.name,
+    this.email = '',
+    this.isLeader = false,
+  });
+
+  factory Member.fromJson(Map<String, dynamic> json) => Member(
+    id: json['id']?.toString() ?? '',
+    name: json['student_name'] as String? ?? json['name'] as String? ?? '',
+    email: json['email'] as String? ?? '',
+    isLeader: json['isLeader'] as bool? ?? false,
+  );
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'student_name': name,
+    'email': email,
+    'isLeader': isLeader,
+  };
+}
 
 class Group {
   final String id;
@@ -13,66 +39,30 @@ class Group {
     required this.id,
     required this.simulationId,
     required this.name,
-    required this.leaderId,
-    required this.leaderName,
-    required this.createdAt,
-    required this.members,
-  });
+    this.leaderId = '',
+    this.leaderName = '',
+    DateTime? createdAt,
+    this.members = const [],
+  }) : createdAt = createdAt ?? DateTime.now();
 
-  factory Group.fromJson(Map<String, dynamic> json) {
-    return Group(
-      id: json['id'] as String,
-      simulationId: json['simulationId'] as String,
-      name: json['name'] as String,
-      leaderId: json['leaderId'] as String,
-      leaderName: json['leaderName'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      members: List<Member>.from(
-          (json['members'] as List).map((e) => Member.fromJson(e))),
-    );
-  }
+  factory Group.fromJson(Map<String, dynamic> json) => Group(
+    id: json['id']?.toString() ?? '',
+    simulationId: json['simulation_id']?.toString() ?? '',
+    name: json['name'] as String? ?? '',
+    leaderId: json['leaderId']?.toString() ?? '',
+    leaderName: json['leaderName'] as String? ?? '',
+    members: (json['members'] as List<dynamic>?)
+            ?.map((m) => Member.fromJson(m as Map<String, dynamic>))
+            .toList() ??
+        [],
+  );
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'simulationId': simulationId,
-      'name': name,
-      'leaderId': leaderId,
-      'leaderName': leaderName,
-      'createdAt': createdAt.toIso8601String(),
-      'members': members.map((e) => e.toJson()).toList(),
-    };
-  }
-}
-
-class Member {
-  final String id;
-  final String name;
-  final String email;
-  final bool isLeader;
-
-  Member({
-    required this.id,
-    required this.name,
-    required this.email,
-    required this.isLeader,
-  });
-
-  factory Member.fromJson(Map<String, dynamic> json) {
-    return Member(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      email: json['email'] as String,
-      isLeader: json['isLeader'] as bool,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'email': email,
-      'isLeader': isLeader,
-    };
-  }
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'simulation_id': simulationId,
+    'name': name,
+    'leaderId': leaderId,
+    'leaderName': leaderName,
+    'members': members.map((m) => m.toJson()).toList(),
+  };
 }

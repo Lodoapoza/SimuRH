@@ -21,7 +21,7 @@ class DbService {
     final path = join(dbPath, 'simurh_offline.db');
     return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -80,13 +80,11 @@ class DbService {
 
     await db.execute('''
       CREATE TABLE group_members(
-        id INTEGER PRIMARY KEY,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         group_id INTEGER,
-        user_id INTEGER,
-        role TEXT,
+        student_name TEXT NOT NULL,
         joined_at TEXT,
-        FOREIGN KEY (group_id) REFERENCES groups_table(id) ON DELETE CASCADE,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        FOREIGN KEY (group_id) REFERENCES groups_table(id) ON DELETE CASCADE
       )
     ''');
 
@@ -158,6 +156,18 @@ class DbService {
         )
       ''');
     }
+    if (oldVersion < 3) {
+      await db.execute('DROP TABLE IF EXISTS group_members');
+      await db.execute('''
+        CREATE TABLE group_members(
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          group_id INTEGER,
+          student_name TEXT NOT NULL,
+          joined_at TEXT,
+          FOREIGN KEY (group_id) REFERENCES groups_table(id) ON DELETE CASCADE
+        )
+      ''');
+    }
   }
 
   // --- Generic CRUD Operations ---
@@ -219,17 +229,6 @@ class DbService {
       where: 'id = ?',
       whereArgs: [submissionId],
     );
-  }
-
-  /// Groups
-  Future<void> cacheGroup(Map<String, dynamic> group) async {
-    final db = await database;
-    await db.insert('groups_table', group);
-  }
-
-  Future<List<Map<String, dynamic>>> getCachedGroups() async {
-    final db = await database;
-    return await db.query('groups_table');
   }
 
   /// Resources
