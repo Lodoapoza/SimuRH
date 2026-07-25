@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'package:flutter/material.dart' hide Simulation;
 import 'package:simurh/services/local_auth_service.dart';
 import 'package:simurh/services/db_service.dart';
 import 'package:simurh/services/license_service.dart';
 import 'package:simurh/services/group_service.dart';
+import 'package:simurh/services/local_server_service.dart';
 import 'package:simurh/screens/professor/create_simulation_screen.dart';
 import 'package:simurh/screens/professor/simulation_detail_screen.dart';
 import 'package:simurh/screens/professor/resources_screen.dart';
@@ -20,17 +22,41 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   final LocalAuthService _auth = LocalAuthService();
   final DbService _db = DbService();
+  final LocalServerService _server = LocalServerService();
 
   String _userName = '';
   bool _isLoading = true;
   bool _isOnline = true;
   int _simulationCount = 0;
   List<Simulation> _recentSimulations = [];
+  Timer? _refreshTimer;
+  final Duration _refreshInterval = const Duration(seconds: 5);
 
   @override
   void initState() {
     super.initState();
     _loadData();
+    _startAutoRefresh();
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startAutoRefresh() {
+    _refreshTimer?.cancel();
+    _refreshTimer = Timer.periodic(_refreshInterval, (_) async {
+      if (!mounted) return;
+      final profile = await _auth.getActiveProfile();
+      final sims = await _db.getCachedSimulations();
+      if (mounted) setState(() {
+        _userName = profile?.name ?? 'Professeur';
+        _simulationCount = sims.length;
+        _recentSimulations = sims.take(5).map((j) => Simulation.fromJson(j)).toList();
+      });
+    });
   }
 
   Future<void> _loadData() async {
@@ -39,14 +65,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final profile = await _auth.getActiveProfile();
       _userName = profile?.name ?? 'Professeur';
 
-      // Stats locales
       final sims = await _db.getCachedSimulations();
       _simulationCount = sims.length;
       _recentSimulations = sims.take(5).map((j) => Simulation.fromJson(j)).toList();
 
       _isOnline = true;
     } catch (_) {
-      _isOnline = true; // toujours en ligne (local)
+      _isOnline = true;
     }
     if (mounted) setState(() => _isLoading = false);
   }
@@ -70,6 +95,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
         backgroundColor: colorScheme.primary,
         iconTheme: IconThemeData(color: colorScheme.onPrimary),
         actions: [
+          if (_server.isRunning)
+            Padding(
+              padding: const EdgeInsets.only(right: 4),
+              child: _LiveIndicator(interval: _refreshInterval),
+            ),
           IconButton(
             icon: const Icon(Icons.swap_horiz),
             tooltip: 'Changer de profil',
@@ -426,6 +456,58 @@ class _NavItem {
   final VoidCallback onTap;
 
   _NavItem(this.label, this.icon, this.color, this.onTap);
+}
+
+class _LiveIndicator extends StatelessWidget {
+  final Duration interval;
+  const _LiveIndicator({required this.interval});
+
+  @override
+  Widget build(BuildContext context) {
+    return _LiveIndicatorWidget(interval: interval);
+  }
+}
+
+class _LiveIndicatorWidget extends StatefulWidget {
+  final Duration interval;
+  const _LiveIndicatorWidget({required this.interval});
+  @override
+  State<_LiveIndicatorWidget> createState() => _LiveIndicatorWidgetState();
+}
+
+class _LiveIndicatorWidgetState extends State<_LiveIndicatorWidget>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _anim;
+
+  @override
+  void initState() {
+    super.initState();
+    _anim = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _anim.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _anim,
+      child: Container(
+        width: 8,
+        height: 8,
+        decoration: const BoxDecoration(
+          color: Colors.greenAccent,
+          shape: BoxShape.circle,
+        ),
+      ),
+    );
+  }
 }
 
 // Écran simple de liste des simulations (utilisé par le dashboard)
