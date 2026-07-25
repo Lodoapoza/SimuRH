@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart' hide Simulation;
 import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:simurh/services/api_service.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:simurh/services/db_service.dart';
 import 'package:simurh/services/license_service.dart';
 import 'package:simurh/models/simulation.dart';
 
@@ -15,7 +18,7 @@ class CreateSimulationScreen extends StatefulWidget {
 }
 
 class _CreateSimulationScreenState extends State<CreateSimulationScreen> {
-  final ApiService _apiService = ApiService();
+  final DbService _db = DbService();
   final _formKey = GlobalKey<FormState>();
 
   bool _isLoading = false;
@@ -181,10 +184,10 @@ class _CreateSimulationScreenState extends State<CreateSimulationScreen> {
 
     try {
       final body = _buildSimulationBody('draft');
-      final response = await _apiService.post('simulations', body);
-      await _uploadFiles(response['id'] as String);
+      final id = await _db.insert('simulations', body);
+      await _uploadFiles(id.toString());
 
-      final code = response['code'] as String?;
+      final code = body['code'] as String?;
       if (mounted) {
         setState(() {
           _createdCode = code ?? 'RH-${DateTime.now().year}-?';
@@ -218,16 +221,15 @@ class _CreateSimulationScreenState extends State<CreateSimulationScreen> {
     try {
       // Create simulation
       final body = _buildSimulationBody('active');
-      final response = await _apiService.post('simulations', body);
-      final simId = response['id'] as String;
+      final id = await _db.insert('simulations', body);
 
       // Upload files
-      await _uploadFiles(simId);
+      await _uploadFiles(id.toString());
 
-      // Launch
-      await _apiService.post('simulations/$simId/launch', {});
+      // Mettre à jour le statut
+      await _db.update('simulations', {'status': 'active'}, where: 'id = ?', whereArgs: [id]);
 
-      final code = response['code'] as String?;
+      final code = body['code'] as String?;
       if (mounted) {
         setState(() {
           _createdCode = code ?? 'RH-${DateTime.now().year}-?';
@@ -251,6 +253,12 @@ class _CreateSimulationScreenState extends State<CreateSimulationScreen> {
     }
   }
 
+  String _generateLocalCode() {
+    final now = DateTime.now();
+    final rand = (1000 + DateTime.now().millisecondsSinceEpoch % 9000).toString();
+    return 'RH-${now.year}-${rand.substring(0, 4)}';
+  }
+
   Map<String, dynamic> _buildSimulationBody(String status) {
     return {
       'title': _titleController.text.trim(),
@@ -270,25 +278,32 @@ class _CreateSimulationScreenState extends State<CreateSimulationScreen> {
               })
           .toList(),
       'status': status,
+      'code': _generateLocalCode(),
     };
   }
 
   Future<void> _uploadFiles(String simulationId) async {
+    if (_selectedFiles.isEmpty) return;
+
+    final appDir = await getApplicationDocumentsDirectory();
+    final simDir = Directory('${appDir.path}/simulations/$simulationId');
+    if (!await simDir.exists()) await simDir.create(recursive: true);
+
     for (final file in _selectedFiles) {
-      if (file.path != null) {
-        try {
-          await _apiService.uploadFile(
-            'simulations/$simulationId/files',
-            file.path!,
-          );
-        } catch (e) {
-          // Continue with other files even if one fails
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Erreur upload ${file.name} : $e')),
-            );
-          }
+      try {
+        final destPath = '${simDir.path}/${file.name}';
+        if (file.path != null) {
+          await File(file.path!).copy(destPath);
         }
+        await _db.insert('simulation_files', {
+          'simulation_id': int.tryParse(simulationId) ?? 0,
+          'file_id': file.name,
+          'filename': file.name,
+          'file_type': file.extension ?? '',
+          'local_path': destPath,
+        });
+      } catch (e) {
+        debugPrint('Erreur copie fichier ${file.name}: $e');
       }
     }
   }
