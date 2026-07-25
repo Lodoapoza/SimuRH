@@ -66,7 +66,7 @@ class LicenseService {
 
     final yearStr = clean.substring(8, 12);
     final year = int.parse(yearStr, radix: 16);
-    final key = clean.substring(0, 8) + '-' + clean.substring(4, 8) + '-' + yearStr;
+    final key = clean.substring(0, 4) + '-' + clean.substring(4, 8) + '-' + yearStr;
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_isActivatedKey, true);
