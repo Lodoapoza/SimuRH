@@ -36,6 +36,7 @@ class LocalServerRoutes {
             'status': 'ok',
             'version': '1.0.0',
             'etablissement': license?.etablissement ?? '',
+            'token': _server.token,
           }),
           headers: {'Content-Type': 'application/json'});
     });
@@ -70,20 +71,166 @@ class LocalServerRoutes {
       }
     }));
 
-    r.get('/api/groups/<simId>', auth((Request req) async {
-      final simId = req.params['simId']!;
+    r.post('/api/simulations', auth((Request req) async {
       try {
-        final groups = await _groupService.getGroups(int.tryParse(simId) ?? 0);
-        final data = groups.map((g) => {
-          'id': g.id,
-          'name': g.name,
-          'member_count': g.members.length,
-          'members': g.members.map((m) => {
-            'id': m.id,
-            'student_name': m.name,
-          }).toList(),
-        }).toList();
+        final payload = jsonDecode(await req.readAsString()) as Map<String, dynamic>;
+        final id = await _db.insert('simulations', payload);
+        return Response.ok(jsonEncode({'id': id}),
+            headers: {'Content-Type': 'application/json'});
+      } catch (e) {
+        return Response.internalServerError(
+            body: jsonEncode({'error': e.toString()}),
+            headers: {'Content-Type': 'application/json'});
+      }
+    }));
+
+    r.put('/api/simulations/<simId>', auth((Request req) async {
+      try {
+        final simId = req.params['simId']!;
+        final payload = jsonDecode(await req.readAsString()) as Map<String, dynamic>;
+        await _db.update('simulations', payload,
+            where: 'id = ?', whereArgs: [int.tryParse(simId) ?? 0]);
+        return Response.ok(jsonEncode({'status': 'updated'}),
+            headers: {'Content-Type': 'application/json'});
+      } catch (e) {
+        return Response.internalServerError(
+            body: jsonEncode({'error': e.toString()}),
+            headers: {'Content-Type': 'application/json'});
+      }
+    }));
+
+    r.get('/api/groups/all', auth((Request req) async {
+      try {
+        final rows = await _db.query('groups_table');
+        final data = <Map<String, dynamic>>[];
+        for (final row in rows) {
+          final gid = row['id'] as int;
+          final members = await _db.query('group_members',
+              where: 'group_id = ?', whereArgs: [gid]);
+          data.add({
+            'id': row['id'].toString(),
+            'name': row['name'] as String,
+            'simulation_id': row['simulation_id'],
+            'member_count': members.length,
+            'members': members.map((m) => {
+              'id': m['id'].toString(),
+              'student_name': m['student_name'] as String,
+            }).toList(),
+          });
+        }
         return Response.ok(jsonEncode(data),
+            headers: {'Content-Type': 'application/json'});
+      } catch (e) {
+        return Response.internalServerError(
+            body: jsonEncode({'error': e.toString()}),
+            headers: {'Content-Type': 'application/json'});
+      }
+    }));
+
+    r.get('/api/groups', auth((Request req) async {
+      try {
+        final simulationId = req.url.queryParameters['simulationId'];
+        if (simulationId != null) {
+          final groups = await _groupService.getGroups(int.tryParse(simulationId) ?? 0);
+          final data = groups.map((g) => {
+            'id': g.id,
+            'name': g.name,
+            'member_count': g.members.length,
+            'members': g.members.map((m) => {
+              'id': m.id,
+              'student_name': m.name,
+            }).toList(),
+          }).toList();
+          return Response.ok(jsonEncode(data),
+              headers: {'Content-Type': 'application/json'});
+        }
+        final rows = await _db.query('groups_table');
+        final data = <Map<String, dynamic>>[];
+        for (final row in rows) {
+          final gid = row['id'] as int;
+          final members = await _db.query('group_members',
+              where: 'group_id = ?', whereArgs: [gid]);
+          data.add({
+            'id': row['id'].toString(),
+            'name': row['name'] as String,
+            'simulation_id': row['simulation_id'],
+            'member_count': members.length,
+            'members': members.map((m) => {
+              'id': m['id'].toString(),
+              'student_name': m['student_name'] as String,
+            }).toList(),
+          });
+        }
+        return Response.ok(jsonEncode(data),
+            headers: {'Content-Type': 'application/json'});
+      } catch (e) {
+        return Response.internalServerError(
+            body: jsonEncode({'error': e.toString()}),
+            headers: {'Content-Type': 'application/json'});
+      }
+    }));
+
+    r.post('/api/groups', auth((Request req) async {
+      try {
+        final payload = jsonDecode(await req.readAsString()) as Map<String, dynamic>;
+        final group = await _groupService.createGroup(
+            payload['name'] as String,
+            int.tryParse('${payload['simulation_id']}') ?? 0);
+        return Response.ok(jsonEncode({'id': group.id}),
+            headers: {'Content-Type': 'application/json'});
+      } catch (e) {
+        return Response.internalServerError(
+            body: jsonEncode({'error': e.toString()}),
+            headers: {'Content-Type': 'application/json'});
+      }
+    }));
+
+    r.put('/api/groups/<groupId>', auth((Request req) async {
+      try {
+        final groupId = int.tryParse(req.params['groupId']!) ?? 0;
+        final payload = jsonDecode(await req.readAsString()) as Map<String, dynamic>;
+        await _groupService.updateGroupName(groupId, payload['name'] as String);
+        return Response.ok(jsonEncode({'status': 'updated'}),
+            headers: {'Content-Type': 'application/json'});
+      } catch (e) {
+        return Response.internalServerError(
+            body: jsonEncode({'error': e.toString()}),
+            headers: {'Content-Type': 'application/json'});
+      }
+    }));
+
+    r.delete('/api/groups/<groupId>', auth((Request req) async {
+      try {
+        final groupId = int.tryParse(req.params['groupId']!) ?? 0;
+        await _groupService.deleteGroup(groupId);
+        return Response.ok(jsonEncode({'status': 'deleted'}),
+            headers: {'Content-Type': 'application/json'});
+      } catch (e) {
+        return Response.internalServerError(
+            body: jsonEncode({'error': e.toString()}),
+            headers: {'Content-Type': 'application/json'});
+      }
+    }));
+
+    r.post('/api/groups/<groupId>/members', auth((Request req) async {
+      try {
+        final groupId = int.tryParse(req.params['groupId']!) ?? 0;
+        final payload = jsonDecode(await req.readAsString()) as Map<String, dynamic>;
+        await _groupService.addMember(groupId, payload['student_name'] as String);
+        return Response.ok(jsonEncode({'status': 'added'}),
+            headers: {'Content-Type': 'application/json'});
+      } catch (e) {
+        return Response.internalServerError(
+            body: jsonEncode({'error': e.toString()}),
+            headers: {'Content-Type': 'application/json'});
+      }
+    }));
+
+    r.delete('/api/groups/<groupId>/members/<memberId>', auth((Request req) async {
+      try {
+        final memberId = int.tryParse(req.params['memberId']!) ?? 0;
+        await _groupService.removeMember(memberId);
+        return Response.ok(jsonEncode({'status': 'removed'}),
             headers: {'Content-Type': 'application/json'});
       } catch (e) {
         return Response.internalServerError(

@@ -47,10 +47,19 @@ class _ConnectScreenState extends State<ConnectScreen> {
         if (data['status'] == 'ok') {
           // Extract and save establishment name if available
           final etablissement = data['etablissement'] as String? ?? '';
+          final token = data['token'] as String? ?? '';
           if (etablissement.isNotEmpty) {
             final prefs = await SharedPreferences.getInstance();
             await prefs.setString('simurh_etablissement', etablissement);
             setState(() => _etablissement = etablissement);
+          }
+
+          // Save connection info to SharedPreferences
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('simurh_server_ip', ip);
+          await prefs.setString('simurh_server_port', port);
+          if (token.isNotEmpty) {
+            await prefs.setString('simurh_server_token', token);
           }
 
           if (mounted) {
@@ -58,13 +67,13 @@ class _ConnectScreenState extends State<ConnectScreen> {
               context: context,
               builder: (ctx) => AlertDialog(
                 title: const Text('Connecté !'),
-                content: Text('Connecté au professeur sur $ip:$port'),
+                content: Text('Connecté au professeur sur $ip:$port\n\nToken d\'authentification reçu'),
                 actions: [
                   ElevatedButton(
                     onPressed: () {
                     Navigator.pop(ctx);
                     Navigator.pushNamed(context, '/student/home',
-                      arguments: {'ip': ip, 'port': port, 'etablissement': etablissement});
+                      arguments: {'ip': ip, 'port': port, 'etablissement': etablissement, 'token': token});
                   },
                     child: const Text('Terminé'),
                   ),

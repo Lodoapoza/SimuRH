@@ -131,7 +131,7 @@ final HrTemplate gpec = HrTemplate(
       'Mobilité interne et reconversion',
       'Gestion des âges et des seniors',
       'Entretien professionnel et GPEC',
-      'Dispositif FDFP (Fonds de Développement de la Formation Professionnelle)',
+      'Dispositif FAFP (Fonds de Développement de la Formation Professionnelle)',
       'Bilan social et indicateurs RH',
     ],
     sections: [
@@ -165,7 +165,7 @@ final HrTemplate gpec = HrTemplate(
             "le recrutement externe, la formation professionnelle, la mobilité "
             "interne, et l\'aménagement des fins de carrière. Chaque levier doit "
             "être budgétisé de manière réaliste. Au sein de l\'UEMOA, les "
-            "entreprises peuvent solliciter des financements auprès du FDFP ou "
+            "entreprises peuvent solliciter des financements auprès du FAFP ou "
             "des OPCO locaux pour la formation. Le plan doit également intégrer "
             "un volet de gestion prévisionnelle des emplois sensibles (métiers "
             "en tension). Le suivi s\'effectue via un tableau de bord RH avec "
@@ -196,7 +196,7 @@ final HrTemplate remuneration = HrTemplate(
   description: 'Politique salariale, packages et performance',
   level: 'master',
   icon: 'payments',
-  role: "Vous êtes le DRH d\'une entreprise de services numériques de 350 salariés à Abidjan.",
+  role: "Vous êtes le DRH d\'une entreprise de services numériques de 350 salariés à Bamako.",
   context: "Le CEO vous demande de repenser entièrement la politique de rémunération "
       "pour attirer et retenir les talents dans un secteur ultra-concurrentiel. "
       "La masse salariale représente 55% du chiffre d\'affaires et le turnover "
@@ -1411,7 +1411,7 @@ final HrTemplate auditRh = HrTemplate(
             "l\'administration du personnel (contrats, dossiers, registres), "
             "la paie et les déclarations sociales (conformité CNPS, "
             "impôts), le recrutement (processus, non-discrimination), "
-            "la formation (plan, évaluation, FDFP), les relations "
+            "la formation (plan, évaluation, FAFP), les relations "
             "sociales (CSE, NAO, accords), et la performance RH "
             "(indicateurs, tableau de bord). Une grille d\'évaluation "
             "avec critères pondérés permet de calculer un score de "
@@ -2293,7 +2293,7 @@ final HrTemplate droitSocialAvance = HrTemplate(
         content: "Le licenciement économique est motivé par des difficultés "
             "économiques, des mutations technologiques, ou une "
             "réorganisation nécessaire à la sauvegarde de l\'entreprise. "
-            "Dans le Code du Travail ivoirien et OHADA, l\'employeur "
+            "Dans le Code du Travail malien et OHADA, l\'employeur "
             "doit démontrer la réalité et la gravité des difficultés. "
             "La procédure comprend : convocation aux entretiens "
             "préalables, notification, et respect d\'un préavis. "

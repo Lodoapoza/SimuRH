@@ -30,6 +30,9 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
   String? _errorMessage;
 
   String _etablissement = '';
+  String _serverIp = '';
+  String _serverPort = '';
+  String _serverToken = '';
 
   // Simulation state
   Simulation? _simulation;
@@ -50,13 +53,21 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
     // Try route arguments first
     final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     if (args != null && args['etablissement'] != null) {
-      setState(() => _etablissement = args['etablissement'] as String);
+      setState(() {
+        _etablissement = args['etablissement'] as String;
+        _serverIp = args['ip'] as String? ?? '';
+        _serverPort = args['port'] as String? ?? '';
+        _serverToken = args['token'] as String? ?? '';
+      });
       return;
     }
     // Fallback to SharedPreferences
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _etablissement = prefs.getString('simurh_etablissement') ?? '';
+      _serverIp = prefs.getString('simurh_server_ip') ?? '';
+      _serverPort = prefs.getString('simurh_server_port') ?? '';
+      _serverToken = prefs.getString('simurh_server_token') ?? '';
     });
   }
 
