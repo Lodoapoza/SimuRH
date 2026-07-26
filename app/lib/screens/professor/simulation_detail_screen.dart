@@ -227,6 +227,67 @@ class _SimulationDetailScreenState extends State<SimulationDetailScreen>
     }
   }
 
+  void _showStudentPreview(Simulation sim) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.visibility, size: 20),
+            const SizedBox(width: 8),
+            Expanded(child: Text(sim.title, style: const TextStyle(fontSize: 18))),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _previewSection('Code', sim.code),
+              _previewSection('Statut', _statusLabel(sim.status)),
+              _previewSection('Durée', '${sim.durationDays} jours'),
+              _previewSection('Groupes max', '${sim.maxGroups}'),
+              _previewSection('Périodes', '${sim.decisionPeriods}'),
+              if (sim.context.isNotEmpty) _previewSection('Contexte', sim.context),
+              if (sim.objectives.isNotEmpty)
+                _previewSection('Objectifs', sim.objectives.join('\n• ')),
+              if (sim.professorName.isNotEmpty)
+                _previewSection('Professeur', sim.professorName),
+              _previewSection('Créée le', DateFormat('dd/MM/yyyy').format(sim.createdAt)),
+            ],
+          ),
+        ),
+        actions: [
+          FilledButton(onPressed: () => Navigator.pop(ctx), child: const Text('Fermer')),
+        ],
+      ),
+    );
+  }
+
+  Widget _previewSection(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
+          const SizedBox(height: 2),
+          Text(value, style: const TextStyle(fontSize: 14)),
+          const Divider(height: 16),
+        ],
+      ),
+    );
+  }
+
+  String _statusLabel(String status) {
+    switch (status) {
+      case 'draft': return 'Brouillon';
+      case 'active': return 'Active';
+      case 'closed': return 'Clôturée';
+      default: return status;
+    }
+  }
+
   Future<void> _downloadFile(SimFile file) async {
     setState(() => _downloadingFileIds.add(file.id));
 
@@ -293,6 +354,12 @@ class _SimulationDetailScreenState extends State<SimulationDetailScreen>
           ],
         ),
         actions: [
+          if (_simulation != null)
+            IconButton(
+              icon: const Icon(Icons.visibility),
+              tooltip: 'Voir comme étudiant',
+              onPressed: () => _showStudentPreview(_simulation!),
+            ),
           if (!_isOnline)
             Padding(
               padding: const EdgeInsets.only(right: 12),
