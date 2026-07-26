@@ -382,11 +382,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         );
       }),
-      _NavItem('Groupes', Icons.people_outline, Colors.indigo, () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const GroupManagementScreen(simulationId: 0)),
+      _NavItem('Groupes', Icons.people_outline, Colors.indigo, () async {
+        final db = DbService();
+        final sims = await db.getCachedSimulations();
+        if (!mounted) return;
+        if (sims.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Aucune simulation. Créez-en une d\'abord.')),
+          );
+          return;
+        }
+        final simId = await showDialog<int>(
+          context: context,
+          builder: (ctx) => SimpleDialog(
+            title: const Text('Choisir une simulation'),
+            children: [
+              for (final s in sims)
+                SimpleDialogOption(
+                  onPressed: () => Navigator.pop(ctx, s['id'] as int),
+                  child: ListTile(
+                    title: Text(s['title'] as String? ?? 'Sans titre'),
+                    subtitle: Text(s['code'] as String? ?? ''),
+                    dense: true,
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+            ],
+          ),
         );
+        if (simId == null || !mounted) return;
+        Navigator.push(context,
+          MaterialPageRoute(builder: (_) => GroupManagementScreen(simulationId: simId)));
       }),
       _NavItem('Connectivité', Icons.cast, Colors.blue, () {
         Navigator.push(context, MaterialPageRoute(builder: (_) => const ConnectivityScreen()));

@@ -256,28 +256,46 @@ class _HomeGateState extends State<HomeGate> {
     );
     if (selectedGroup == null) return;
 
-    // Étape 3: sélectionner son nom parmi les membres
+    // Étape 3: choisir son nom
+    String? memberName;
     final members = selectedGroup.members;
     if (members.isEmpty) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Ce groupe n\'a pas de membres')),
-        );
-      }
-      return;
+      // Groupe vide → entrer son nom
+      final ctrl = TextEditingController();
+      memberName = await showDialog<String>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Entrez votre nom'),
+          content: TextField(
+            controller: ctrl,
+            autofocus: true,
+            decoration: const InputDecoration(hintText: 'Votre prénom et nom'),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Annuler')),
+            ElevatedButton(onPressed: () => Navigator.pop(ctx, ctrl.text.trim()), child: const Text('Rejoindre')),
+          ],
+        ),
+      );
+      ctrl.dispose();
+    } else {
+      memberName = await showDialog<String>(
+        context: context,
+        builder: (ctx) => SimpleDialog(
+          title: const Text('Sélectionnez votre nom'),
+          children: members.map((m) => SimpleDialogOption(
+            onPressed: () => Navigator.pop(ctx, m.name),
+            child: ListTile(title: Text(m.name)),
+          )).toList(),
+        ),
+      );
     }
+    if (memberName == null || memberName.isEmpty) return;
 
-    final memberName = await showDialog<String>(
-      context: context,
-      builder: (ctx) => SimpleDialog(
-        title: const Text('Sélectionnez votre nom'),
-        children: members.map((m) => SimpleDialogOption(
-          onPressed: () => Navigator.pop(ctx, m.name),
-          child: ListTile(title: Text(m.name)),
-        )).toList(),
-      ),
-    );
-    if (memberName == null) return;
+    // Ajouter l'étudiant au groupe si pas déjà membre
+    if (members.every((m) => m.name != memberName)) {
+      await groupService.addMember(selectedGroup.id, memberName);
+    }
 
     // Créer le profil étudiant et basculer dessus
     final studentProfile = await _auth.createStudent(memberName, int.parse(selectedGroup.id));
