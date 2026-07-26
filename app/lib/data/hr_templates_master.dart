@@ -141,7 +141,7 @@ final HrTemplate gpec = HrTemplate(
             "entreprises d\'au moins 300 salariés, mais elle constitue une bonne "
             "pratique pour toutes les organisations. Elle repose sur un diagnostic "
             "partagé des emplois et des compétences, une identification des écarts, "
-            "et la définition d\'un plan d\'action. En Côte d'Ivoire, le cadre "
+            "et la définition d\'un plan d\'action. En Côte d\'Ivoire, le cadre "
             "réglementaire s\'inspire du modèle français tout en intégrant les "
             "spécificités du marché local (secteur informel, pénurie de certains "
             "profils). L\'accord de GPEC peut être négocié avec les partenaires "
@@ -164,7 +164,7 @@ final HrTemplate gpec = HrTemplate(
         content: "Le plan d\'action GPEC comprend quatre leviers principaux : "
             "le recrutement externe, la formation professionnelle, la mobilité "
             "interne, et l\'aménagement des fins de carrière. Chaque levier doit "
-            "être budgétisé de manière réaliste. Au sein de l'UEMOA, les "
+            "être budgétisé de manière réaliste. Au sein de l\'UEMOA, les "
             "entreprises peuvent solliciter des financements auprès du FDFP ou "
             "des OPCO locaux pour la formation. Le plan doit également intégrer "
             "un volet de gestion prévisionnelle des emplois sensibles (métiers "
@@ -289,7 +289,7 @@ final HrTemplate remuneration = HrTemplate(
   ],
   constraints: [
     'Le budget total augmentations (générale + promotions) ≤ 8% masse salariale',
-    'L'équité interne doit être respectée (ratio max 1:8 entre plus bas et plus haut salaire)',
+    'L\'équité interne doit être respectée (ratio max 1:8 entre plus bas et plus haut salaire)',
   ],
   resourceContent: ResourceContent(
     summary: "La politique de rémunération est un levier stratégique majeur pour "
@@ -299,7 +299,7 @@ final HrTemplate remuneration = HrTemplate(
         "logement). Dans le contexte ouest-africain, la compétition pour les "
         "talents numériques impose une réflexion approfondie sur le mix "
         "rémunérationnel. Une politique bien conçue équilibre la compétitivité "
-        "externe (benchmark), l'équité interne (grille de classification), "
+        "externe (benchmark), l\'équité interne (grille de classification), "
         "et la soutenabilité financière.",
     keyConcepts: [
       'Masse salariale',
@@ -320,9 +320,9 @@ final HrTemplate remuneration = HrTemplate(
             "de la politique salariale actuelle : analyse de la masse salariale, "
             "du coût moyen par collaborateur, et de la dispersion des salaires. "
             "Un benchmark externe est indispensable pour positionner l\'entreprise "
-            "sur le marché de l\'emploi local. En Côte d'Ivoire, des études "
+            "sur le marché de l\'emploi local. En Côte d\'Ivoire, des études "
             "salariales sont publiées par le cabinet Deloitte, le groupe "
-            "Afriwise, et l'APBEF. L\'analyse des fourchettes de salaires par "
+            "Afriwise, et l\'APBEF. L\'analyse des fourchettes de salaires par "
             "métier et par niveau d\'expérience permet d\'identifier les "
             "déséquilibres et les risques de perte de talents.",
       ),
@@ -342,7 +342,7 @@ final HrTemplate remuneration = HrTemplate(
         title: '3. Gestion des performances et rétention',
         content: "Le lien entre rémunération et performance doit être transparent "
             "et perçu comme équitable par les collaborateurs. Un système "
-            "d'évaluation annuelle avec des objectifs SMART permet de déterminer "
+            "d\'évaluation annuelle avec des objectifs SMART permet de déterminer "
             "les augmentations individuelles et les bonus. Pour retenir les "
             "hauts potentiels, des mécanismes spécifiques existent : stock-options, "
             "bonus de signature, clauses de non-concurrence (avec contrepartie "
@@ -353,7 +353,7 @@ final HrTemplate remuneration = HrTemplate(
       ResourceSection(
         title: '4. Cadre légal et dialogue social',
         content: "La politique salariale doit respecter le cadre réglementaire : "
-            "SMIG (60 000 FCFA en Côte d'Ivoire depuis 2022), conventions "
+            "SMIG (60 000 FCFA en Côte d\'Ivoire depuis 2022), conventions "
             "collectives, et obligations déclaratives auprès de la CNPS. Les "
             "NAO (Négociations Annuelles Obligatoires) sont un temps fort du "
             "dialogue social qui aboutit à un accord ou un procès-verbal de "
@@ -375,7 +375,7 @@ final HrTemplate strategieRh = HrTemplate(
   description: 'Alignment RH/business, ROI des initiatives RH',
   level: 'master',
   icon: 'hub',
-  role: "Vous êtes le DRH d\'un groupe bancaire de 800 salariés présent dans 5 pays de l'UEMOA.",
+  role: "Vous êtes le DRH d\'un groupe bancaire de 800 salariés présent dans 5 pays de l\'UEMOA.",
   context: "Le nouveau CEO, issu de la finance, vous demande de démontrer la "
       "valeur ajoutée de la fonction RH en alignant la stratégie RH sur le plan "
       "stratégique du groupe : digitalisation bancaire, expansion régionale et "
@@ -519,7 +519,7 @@ final HrTemplate strategieRh = HrTemplate(
         title: '3. Plan stratégique RH et priorités',
         content: "Le plan stratégique RH se décline en 4 axes : (1) Attirer "
             "et recruter les talents clés pour la transformation digitale, "
-            "(2) Développer les compétences stratégiques via l'Academy et le "
+            "(2) Développer les compétences stratégiques via l\'Academy et le "
             "management, (3) Engager et fidéliser via une politique de "
             "rémunération et de QVT attractive, (4) Moderniser la fonction "
             "RH via le digital et les analytics. Chaque axe doit être "
@@ -553,7 +553,7 @@ final HrTemplate gestionTalents = HrTemplate(
   level: 'master',
   icon: 'military_tech',
   role: "Vous êtes le DRH d\'une entreprise de télécommunications de 500 salariés.",
-  context: "Le marché des télécoms en Afrique de l'Ouest est en pleine mutation. "
+  context: "Le marché des télécoms en Afrique de l\'Ouest est en pleine mutation. "
       "Votre entreprise perd ses meilleurs éléments au profit des concurrents "
       "et des startups du numérique. Le CEO vous demande de mettre en place "
       "un dispositif de gestion des talents incluant l\'identification des "
@@ -563,7 +563,7 @@ final HrTemplate gestionTalents = HrTemplate(
       "avec des critères objectifs d\'identification des talents et des "
       "mesures de rétention innovantes adaptées au contexte local.",
   objectives: [
-    'Identifier les critères d'évaluation des hauts potentiels',
+    'Identifier les critères d\'évaluation des hauts potentiels',
     'Concevoir un plan de succession pour les postes critiques',
     'Proposer un programme de rétention sur mesure',
     'Définir un parcours de développement accéléré pour les talents',
@@ -652,7 +652,7 @@ final HrTemplate gestionTalents = HrTemplate(
         "stratégique qui vise à attirer, développer, et retenir les collaborateurs "
         "à haut potentiel. Elle comprend l\'identification des talents, le "
         "succession planning, le développement accéléré, et la rétention. "
-        "Dans un marché concurrentiel comme l'Afrique de l'Ouest, les "
+        "Dans un marché concurrentiel comme l\'Afrique de l\'Ouest, les "
         "entreprises doivent déployer des stratégies de rétention spécifiques "
         "pour éviter la fuite de leurs meilleurs éléments vers les concurrents "
         "ou les startups du numérique.",
@@ -680,7 +680,7 @@ final HrTemplate gestionTalents = HrTemplate(
             "à manager des équipes. Le processus de Talent Review est conduit "
             "annuellement par le comité de direction avec le HR Business "
             "Partner. L\'objectivité des critères est essentielle pour éviter "
-            "les biais et assurer l'équité de traitement.",
+            "les biais et assurer l\'équité de traitement.",
       ),
       ResourceSection(
         title: '2. Plan de succession',
@@ -1060,7 +1060,7 @@ final HrTemplate relationsSociales = HrTemplate(
         content: "Les NAO portent obligatoirement sur les salaires (augmentations "
             "générales, primes), la durée du travail, et le partage de la "
             "valeur ajoutée (intéressement, participation). Depuis la loi "
-            "ivoirienne de 2023, elles incluent aussi la QVT, l'égalité "
+            "ivoirienne de 2023, elles incluent aussi la QVT, l\'égalité "
             "professionnelle, et la mobilité durable. Les accords collectifs "
             "peuvent déroger aux dispositions légales dans un sens plus "
             "favorable aux salariés. La signature d\'un accord par des "
@@ -1092,7 +1092,7 @@ final HrTemplate sirh = HrTemplate(
   description: 'Implémentation ATS/SIRH, digitalisation RH',
   level: 'master',
   icon: 'computer',
-  role: "Vous êtes le DRH d\'un groupe de distribution de 450 salariés avec 12 agences en Afrique de l'Ouest.",
+  role: "Vous êtes le DRH d\'un groupe de distribution de 450 salariés avec 12 agences en Afrique de l\'Ouest.",
   context: "La gestion RH est encore largement manuelle : les dossiers "
       "papier, les congés gérés sur Excel, et la paie externalisée sans "
       "lien avec les données de présence. Le CEO vous a missionné pour "
@@ -1188,7 +1188,7 @@ final HrTemplate sirh = HrTemplate(
     'La solution doit être conforme au règlement UEMOA sur la protection des données',
   ],
   resourceContent: ResourceContent(
-    summary: "Le Système d'Information des Ressources Humaines (SIRH) est "
+    summary: "Le Système d\'Information des Ressources Humaines (SIRH) est "
         "l\'ensemble des outils et processus qui automatisent et intègrent "
         "la gestion des données RH : administration du personnel, paie, "
         "gestion des temps, recrutement, formation, et évaluation. La "
@@ -1244,7 +1244,7 @@ final HrTemplate sirh = HrTemplate(
             "la paie et des reportings. Un plan de nettoyage des données "
             "est nécessaire avant la mise en production. La conformité "
             "réglementaire est impérative : protection des données "
-            "personnelles (loi 2013-450 en Côte d'Ivoire), conservation "
+            "personnelles (loi 2013-450 en Côte d\'Ivoire), conservation "
             "des archives, et fiabilité des déclarations sociales (CNPS, "
             "impôts). Le Délégué à la Protection des Données (DPO) doit "
             "être associé au projet dès la phase de conception.",
@@ -1372,7 +1372,7 @@ final HrTemplate auditRh = HrTemplate(
     'Les entretiens individuels sont limités à 10% de l\'effectif',
   ],
   resourceContent: ResourceContent(
-    summary: "L\'audit RH est une démarche systématique et objective d'évaluation "
+    summary: "L\'audit RH est une démarche systématique et objective d\'évaluation "
         "des pratiques, processus et performances de la fonction RH. Il vise "
         "à identifier les écarts entre les pratiques observées et les "
         "référentiels (légaux, normatifs, bonnes pratiques) et à formuler "
@@ -1406,14 +1406,14 @@ final HrTemplate auditRh = HrTemplate(
             "le management des RH), ou internes (procédures maison).",
       ),
       ResourceSection(
-        title: '2. Domaines d\'audit et grille d'évaluation',
+        title: '2. Domaines d\'audit et grille d\'évaluation',
         content: "L\'audit RH couvre plusieurs domaines interconnectés : "
             "l\'administration du personnel (contrats, dossiers, registres), "
             "la paie et les déclarations sociales (conformité CNPS, "
             "impôts), le recrutement (processus, non-discrimination), "
             "la formation (plan, évaluation, FDFP), les relations "
             "sociales (CSE, NAO, accords), et la performance RH "
-            "(indicateurs, tableau de bord). Une grille d'évaluation "
+            "(indicateurs, tableau de bord). Une grille d\'évaluation "
             "avec critères pondérés permet de calculer un score de "
             "maturité RH. Chaque écart donne lieu à une constatation "
             "d\'audit (conforme, écart mineur, écart majeur, observation).",
@@ -1455,11 +1455,11 @@ final HrTemplate mobiliteCarrieres = HrTemplate(
   description: 'Mobilité interne, parcours professionnels, GPEC individuelle',
   level: 'master',
   icon: 'transfer_within_a_station',
-  role: "Vous êtes le DRH d\'un groupe hôtelier de 700 salariés (8 établissements en Afrique de l'Ouest).",
+  role: "Vous êtes le DRH d\'un groupe hôtelier de 700 salariés (8 établissements en Afrique de l\'Ouest).",
   context: "Le groupe connaît une forte rotation dans les postes d\'encadrement "
       "intermédiaire (chefs de service, sous-directeurs). L\'analyse des "
       "entretiens de départ révèle que les salariés quittent l\'entreprise "
-      "par manque de perspectives d'évolution. Le CEO vous demande de "
+      "par manque de perspectives d\'évolution. Le CEO vous demande de "
       "mettre en place une politique de mobilité interne ambitieuse : "
       "bourse d\'emplois interne, parcours de carrière par métier, "
       "et dispositif de mobilité géographique entre les établissements "
@@ -1580,9 +1580,9 @@ final HrTemplate mobiliteCarrieres = HrTemplate(
             "géographique et fonctionnelle dans les contrats. Elle doit "
             "être négociée avec les partenaires sociaux et formalisée "
             "dans un accord collectif ou une charte. La politique définit "
-            "les règles : conditions d'éligibilité, procédure de "
+            "les règles : conditions d\'éligibilité, procédure de "
             "candidature, délais, aides accordées, et garanties de "
-            "retour en cas d'échec. La transparence sur les postes "
+            "retour en cas d\'échec. La transparence sur les postes "
             "ouverts et les critères de sélection est essentielle.",
       ),
       ResourceSection(
@@ -1590,7 +1590,7 @@ final HrTemplate mobiliteCarrieres = HrTemplate(
         content: "Les dispositifs de mobilité incluent : (1) la bourse "
             "d\'emplois interne (plateforme digitale listant tous les "
             "postes ouverts avant publication externe), (2) les "
-            "parcours de carrière (schémas d'évolution par filière "
+            "parcours de carrière (schémas d\'évolution par filière "
             "métier avec jalons de compétences), (3) les passerelles "
             "entre métiers (conditions pour changer de filière), "
             "(4) le dispositif de mobilité géographique (aide au "
@@ -1603,7 +1603,7 @@ final HrTemplate mobiliteCarrieres = HrTemplate(
         content: "L\'accompagnement des collaborateurs dans leur projet de "
             "mobilité est essentiel à la réussite du dispositif. "
             "L\'entretien de carrière (distinct de l\'entretien annuel "
-            "d'évaluation) est l\'occasion d'échanger sur les aspirations "
+            "d\'évaluation) est l\'occasion d\'échanger sur les aspirations "
             "et de construire un plan de développement. Le bilan de "
             "compétences (réalisé par un prestataire externe agréé) "
             "permet d\'identifier les compétences transférables. Le "
@@ -1774,7 +1774,7 @@ final HrTemplate managementInterculturel = HrTemplate(
             "(1) établir des règles de fonctionnement explicites, "
             "(2) valoriser la diversité des perspectives, (3) former "
             "les managers à l\'intelligence culturelle (CQ), "
-            "(4) créer des rituels d'équipe inclusifs.",
+            "(4) créer des rituels d\'équipe inclusifs.",
       ),
       ResourceSection(
         title: '3. Politique d\'expatriation et d\'africanisation',
@@ -1819,7 +1819,7 @@ final HrTemplate rseRh = HrTemplate(
       "de travail difficiles dans les entrepôts. Le CEO, soucieux de "
       "l\'image de marque et de la réglementation à venir, vous demande "
       "un plan RSE RH complet avec des objectifs chiffrés. Vous devez "
-      "traiter l'égalité professionnelle, la diversité, la qualité de "
+      "traiter l\'égalité professionnelle, la diversité, la qualité de "
       "vie au travail (QVT), et l\'impact social de l\'entreprise. Le "
       "budget alloué est de 200 millions FCFA par an. La pression "
       "médiatique est forte et les résultats attendus dans 18 mois.",
@@ -1884,7 +1884,7 @@ final HrTemplate rseRh = HrTemplate(
       id: 'index_egalite',
       label: 'Index égalité professionnelle',
       unit: '/100',
-      description: 'Score global d'égalité femmes-hommes',
+      description: 'Score global d\'égalité femmes-hommes',
     ),
     SuccessMetric(
       id: 'taux_femmes_cadres',
@@ -1911,7 +1911,7 @@ final HrTemplate rseRh = HrTemplate(
   ],
   resourceContent: ResourceContent(
     summary: "La Responsabilité Sociale des Entreprises (RSE) appliquée aux "
-        "Ressources Humaines couvre les thématiques d'égalité professionnelle, "
+        "Ressources Humaines couvre les thématiques d\'égalité professionnelle, "
         "de diversité et inclusion, de qualité de vie au travail (QVT), "
         "et d\'impact social. C\'est un levier d\'attractivité, d\'engagement "
         "et de performance durable. Le reporting ESG (Environnemental, "
@@ -1924,7 +1924,7 @@ final HrTemplate rseRh = HrTemplate(
       'Diversité et inclusion',
       'QVT — Qualité de Vie au Travail',
       'Reporting ESG',
-      'Index d'égalité',
+      'Index d\'égalité',
       'Label Diversité / Égalité',
       'Non-discrimination et recrutement inclusif',
       'Handicap et emploi',
@@ -1934,8 +1934,8 @@ final HrTemplate rseRh = HrTemplate(
       ResourceSection(
         title: '1. Cadre légal et référentiels RSE RH',
         content: "La RSE RH s\'appuie sur des textes nationaux et internationaux : "
-            "la loi sur l'égalité professionnelle (loi 2019-570 en Côte "
-            "d'Ivoire), les principes directeurs de l'OCDE, les normes "
+            "la loi sur l\'égalité professionnelle (loi 2019-570 en Côte "
+            "d\'Ivoire), les principes directeurs de l\'OCDE, les normes "
             "ISO 26000 (responsabilité sociétale) et SA 8000 (conditions "
             "de travail). La directive européenne CSRD impose aux "
             "entreprises un reporting extra-financier détaillé sur les "
@@ -1945,14 +1945,14 @@ final HrTemplate rseRh = HrTemplate(
       ),
       ResourceSection(
         title: '2. Égalité professionnelle et diversité',
-        content: "L'égalité professionnelle se mesure via des indicateurs "
+        content: "L\'égalité professionnelle se mesure via des indicateurs "
             "structurels : écart de rémunération, taux de promotion, "
-            "mixité des métiers, et accès à la formation. L'Index "
-            "d'égalité (sur 100 points) est calculé sur 5 indicateurs "
+            "mixité des métiers, et accès à la formation. L\'Index "
+            "d\'égalité (sur 100 points) est calculé sur 5 indicateurs "
             "et doit être publié annuellement. Un score inférieur à "
             "75/100 déclenche des mesures correctives obligatoires. "
             "La diversité va au-delà du genre : elle inclut l\'origine "
-            "ethnique, le handicap, l'âge, et les orientations "
+            "ethnique, le handicap, l\'âge, et les orientations "
             "sexuelles. Les politiques de diversité les plus efficaces "
             "sont celles qui fixent des objectifs chiffrés.",
       ),
@@ -1964,9 +1964,9 @@ final HrTemplate rseRh = HrTemplate(
             "relations sociales (climat, reconnaissance), et équilibre "
             "vie pro/perso (horaires, télétravail). La démarche QVT "
             "est co-construite avec les collaborateurs via des groupes "
-            "de travail et un questionnaire d'évaluation. Les actions "
+            "de travail et un questionnaire d\'évaluation. Les actions "
             "QVT typiques incluent : flexibilité des horaires, "
-            "télétravail partiel, cellule d'écoute psychologique, "
+            "télétravail partiel, cellule d\'écoute psychologique, "
             "espaces de convivialité, et programme de reconnaissance.",
       ),
       ResourceSection(
@@ -2151,7 +2151,7 @@ final HrTemplate controleGestionSocial = HrTemplate(
             "trimestriel, et arbitrage annuel du budget. Les outils "
             "de simulation (scénarios masse salariale, what-if) sont "
             "essentiels pour éclairer les décisions. Le contrôle de "
-            "gestion social permet d'évaluer le retour sur investissement "
+            "gestion social permet d\'évaluer le retour sur investissement "
             "des décisions RH et de démontrer la contribution de la "
             "fonction RH à la performance de l\'entreprise.",
       ),
@@ -2171,8 +2171,8 @@ final HrTemplate droitSocialAvance = HrTemplate(
   role: "Vous êtes le DRH d\'une entreprise industrielle de 350 salariés mise en difficulté par la crise économique.",
   context: "L\'entreprise doit supprimer 80 postes dans le cadre d\'une "
       "restructuration économique. Vous devez élaborer un Plan de "
-      "Sauvegarde de l'Emploi (PSE) conforme au Code du Travail et "
-      "négocier avec les syndicats et l'Inspection du Travail. Le "
+      "Sauvegarde de l\'Emploi (PSE) conforme au Code du Travail et "
+      "négocier avec les syndicats et l\'Inspection du Travail. Le "
       "budget social alloué est de 500 millions FCFA. Parallèlement, "
       "plusieurs salariés licenciés ont saisi le Tribunal du Travail. "
       "Vous devez gérer les contentieux prud\'homaux tout en "
@@ -2258,7 +2258,7 @@ final HrTemplate droitSocialAvance = HrTemplate(
   decisionPeriods: 3,
   rules: [
     '3 périodes = phases du PSE : information-consultation (P1), mise en œuvre (P2), suivi (P3)',
-    'Le PSE doit être validé par l'Inspection du Travail',
+    'Le PSE doit être validé par l\'Inspection du Travail',
   ],
   constraints: [
     'Budget social total = 500 millions FCFA',
@@ -2266,7 +2266,7 @@ final HrTemplate droitSocialAvance = HrTemplate(
     'Au moins 30% des salariés concernés doivent bénéficier d\'une mesure de reclassement',
   ],
   resourceContent: ResourceContent(
-    summary: "Le Plan de Sauvegarde de l'Emploi (PSE) est une procédure "
+    summary: "Le Plan de Sauvegarde de l\'Emploi (PSE) est une procédure "
         "obligatoire pour les entreprises d\'au moins 50 salariés qui "
         "envisagent un licenciement collectif d\'au moins 10 salariés. "
         "Il doit prévoir des mesures pour éviter les licenciements ou "
@@ -2274,9 +2274,9 @@ final HrTemplate droitSocialAvance = HrTemplate(
         "congés de conversion) et des mesures d\'accompagnement pour "
         "les salariés licenciés (indemnités supra-légales, outplacement, "
         "aide à la création d\'entreprise). Le PSE est soumis à la "
-        "validation de l'Inspection du Travail.",
+        "validation de l\'Inspection du Travail.",
     keyConcepts: [
-      'PSE — Plan de Sauvegarde de l'Emploi',
+      'PSE — Plan de Sauvegarde de l\'Emploi',
       'Licenciement économique',
       'Critères d\'ordre des licenciements',
       'Obligation de reclassement',
@@ -2298,7 +2298,7 @@ final HrTemplate droitSocialAvance = HrTemplate(
             "La procédure comprend : convocation aux entretiens "
             "préalables, notification, et respect d\'un préavis. "
             "Pour les licenciements collectifs, l\'obligation "
-            "d'élaborer un PSE s\'applique dès 10 salariés dans "
+            "d\'élaborer un PSE s\'applique dès 10 salariés dans "
             "les entreprises de 50 salariés et plus.",
       ),
       ResourceSection(
@@ -2331,7 +2331,7 @@ final HrTemplate droitSocialAvance = HrTemplate(
             "le montant des indemnités. La prévention passe par une "
             "procédure irréprochable, une information transparente "
             "des représentants du personnel, et des offres de "
-            "reclassement sérieuses. La médiation par l'Inspection "
+            "reclassement sérieuses. La médiation par l\'Inspection "
             "du Travail peut éviter une partie des contentieux. "
             "Les risques prud\'homaux doivent être provisionnés "
             "dans les comptes de l\'entreprise.",
@@ -2357,15 +2357,15 @@ final HrTemplate hrAnalytics = HrTemplate(
       "prédictifs. Le SIRH est en place mais les données sont "
       "éparpillées et de qualité inégale. Vous devez définir le "
       "périmètre des analytics à développer, les outils à déployer "
-      "(BI, machine learning), et les compétences de l'équipe. "
+      "(BI, machine learning), et les compétences de l\'équipe. "
       "Le budget d\'investissement est de 150 millions FCFA. "
-      "Des questions de confidentialité et d'éthique des données "
+      "Des questions de confidentialité et d\'éthique des données "
       "RH se posent, notamment pour les modèles prédictifs.",
   objectives: [
     'Définir le périmètre et la roadmap HR Analytics',
     'Mettre en place un datawarehouse RH et des tableaux de bord avancés',
     'Développer des modèles prédictifs (turnover, performance, potentiel)',
-    'Garantir l'éthique et la conformité des traitements de données RH',
+    'Garantir l\'éthique et la conformité des traitements de données RH',
   ],
   defaultDurationDays: 14,
   defaultMaxGroups: 4,
@@ -2466,7 +2466,7 @@ final HrTemplate hrAnalytics = HrTemplate(
       'Natural Language Processing (CV analyse)',
       'Network Analysis (organisation informelle)',
       'Data governance et qualité des données',
-      'Éthique de l'IA en RH (biais algorithmiques)',
+      'Éthique de l\'IA en RH (biais algorithmiques)',
     ],
     sections: [
       ResourceSection(
@@ -2511,8 +2511,8 @@ final HrTemplate hrAnalytics = HrTemplate(
             "(discrimination genrée, ethnique). Les principes d\'une "
             "IA RH responsable incluent : la transparence, "
             "l\'explicabilité (comprendre pourquoi une décision "
-            "algorithmique est prise), l'équité (audit régulier des "
-            "biais), et la supervision humaine. Un comité d'éthique "
+            "algorithmique est prise), l\'équité (audit régulier des "
+            "biais), et la supervision humaine. Un comité d\'éthique "
             "des données RH doit valider tout modèle avant déploiement.",
       ),
     ],
@@ -2707,14 +2707,14 @@ final HrTemplate gpecAvance = HrTemplate(
   description: 'GPEC augmentée par l\'IA et le machine learning',
   level: 'master',
   icon: 'auto_graph',
-  role: "Vous êtes le DRH d\'une entreprise du CAC 40 implantée en Afrique de l'Ouest (1200 salariés).",
+  role: "Vous êtes le DRH d\'une entreprise du CAC 40 implantée en Afrique de l\'Ouest (1200 salariés).",
   context: "La direction générale vous demande de passer à la vitesse "
       "supérieure en matière de GPEC : utiliser l\'intelligence artificielle "
       "et le machine learning pour anticiper les besoins en compétences "
       "à 5-10 ans. Vous disposez de données RH historiques riches "
       "(15 ans de données) et d\'un budget de 400 millions FCFA pour "
-      "le programme. Les enjeux sont multiples : prédire l'évolution "
-      "des métiers face à l'IA générative, modéliser les scénarios de "
+      "le programme. Les enjeux sont multiples : prédire l\'évolution "
+      "des métiers face à l\'IA générative, modéliser les scénarios de "
       "transformation, et construire un jumeau numérique (digital twin) "
       "de la population RH. Le Chief Digital Officer est votre sponsor "
       "et le Comex attend un proof of concept dans 6 mois.",
@@ -2857,7 +2857,7 @@ final HrTemplate gpecAvance = HrTemplate(
       ResourceSection(
         title: '3. Ontologie des compétences et IA',
         content: "La taxonomie des compétences (skill ontology) est le "
-            "fondement de la GPEC avancée. L'IA permet de construire "
+            "fondement de la GPEC avancée. L\'IA permet de construire "
             "automatiquement cette ontologie en analysant les CV, "
             "les fiches de poste, les évaluations, et les données "
             "de formation. Le NLP (Natural Language Processing) "
@@ -2869,11 +2869,11 @@ final HrTemplate gpecAvance = HrTemplate(
       ),
       ResourceSection(
         title: '4. Gouvernance, éthique et limites',
-        content: "La GPEC pilotée par l'IA soulève des enjeux éthiques "
+        content: "La GPEC pilotée par l\'IA soulève des enjeux éthiques "
             "spécifiques : biais algorithmiques (les données "
             "historiques reflètent des discriminations passées), "
             "transparence des décisions (droit à l\'explication), "
-            "et protection des données (RGPD). Un comité d'éthique "
+            "et protection des données (RGPD). Un comité d\'éthique "
             "des données RH doit valider chaque modèle avant "
             "déploiement. La supervision humaine reste obligatoire "
             "pour les décisions impactant les carrières. Le ROI "

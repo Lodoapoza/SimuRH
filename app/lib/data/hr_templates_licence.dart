@@ -321,8 +321,8 @@ final HrTemplate evaluation_perf = HrTemplate(
   description: 'Mettre en œuvre l\'entretien annuel et le pilotage des objectifs',
   level: 'licence',
   icon: 'trending_up',
-  role: "Vous êtes le responsable RH chargé de déployer le processus d'évaluation.",
-  context: "La banque CBAO, implantée à Dakar avec 5 agences et 250 salariés, lance sa campagne annuelle d'évaluation des performances. En tant que responsable RH, vous devez coordonner l\'ensemble du processus : former les managers à la conduite des entretiens, déployer les grilles d'évaluation, accompagner la fixation des objectifs pour l\'année à venir et analyser les résultats de la campagne. La direction souhaite que l'évaluation soit un véritable outil de développement des compétences et pas seulement une formalité administrative. Vous devez gérer les résistances et assurer l'équité de traitement entre tous les services.",
+  role: "Vous êtes le responsable RH chargé de déployer le processus d\'évaluation.",
+  context: "La banque CBAO, implantée à Dakar avec 5 agences et 250 salariés, lance sa campagne annuelle d\'évaluation des performances. En tant que responsable RH, vous devez coordonner l\'ensemble du processus : former les managers à la conduite des entretiens, déployer les grilles d\'évaluation, accompagner la fixation des objectifs pour l\'année à venir et analyser les résultats de la campagne. La direction souhaite que l\'évaluation soit un véritable outil de développement des compétences et pas seulement une formalité administrative. Vous devez gérer les résistances et assurer l\'équité de traitement entre tous les services.",
   objectives: [
     'Préparer et structurer une campagne d\'évaluation',
     'Conduire un entretien annuel d\'évaluation',
@@ -385,7 +385,7 @@ final HrTemplate gestion_conflits = HrTemplate(
   level: 'licence',
   icon: 'handshake',
   role: "Vous êtes le responsable RH appelé à intervenir dans un conflit entre collaborateurs.",
-  context: "Au sein de l\'agence de communication digitale Wari Digital à Dakar (45 salariés), un conflit oppose deux chefs de service, l\'un dirigeant l'équipe créative et l\'autre l'équipe technique, depuis plusieurs semaines. Le désaccord porte sur la répartition des ressources sur un projet important pour un client majeur. Les tensions montent entre les équipes respectives, affectant le climat social et la productivité. En tant que responsable RH, vous êtes sollicité par la direction pour intervenir en médiation et trouver une solution durable. Le directeur général vous donne carte blanche pour résoudre la situation avant que le conflit n\'impacte la relation client.",
+  context: "Au sein de l\'agence de communication digitale Wari Digital à Dakar (45 salariés), un conflit oppose deux chefs de service, l\'un dirigeant l\'équipe créative et l\'autre l\'équipe technique, depuis plusieurs semaines. Le désaccord porte sur la répartition des ressources sur un projet important pour un client majeur. Les tensions montent entre les équipes respectives, affectant le climat social et la productivité. En tant que responsable RH, vous êtes sollicité par la direction pour intervenir en médiation et trouver une solution durable. Le directeur général vous donne carte blanche pour résoudre la situation avant que le conflit n\'impacte la relation client.",
   objectives: [
     'Analyser les causes et les enjeux du conflit',
     'Conduire une médiation individuelle et collective',
@@ -574,7 +574,7 @@ final HrTemplate sante_securite = HrTemplate(
   level: 'licence',
   icon: 'health_and_safety',
   role: "Vous êtes le responsable HSE (Hygiène, Sécurité, Environnement) d\'une entreprise industrielle.",
-  context: "L\'usine Sénégal Chimie, une entreprise de production de produits d\'entretien basée à Rufisque, emploie 100 salariés. Le secteur est classé à risque élevé en raison de la manipulation de produits chimiques et de l\'utilisation de machines industrielles. Un accident du travail grave est survenu la semaine dernière, impliquant un opérateur brûlé par un produit chimique. En tant que responsable HSE, vous devez mener une enquête sur l\'accident, identifier les risques, mettre à jour le document unique d'évaluation des risques (DUER), organiser les formations sécurité obligatoires et préparer la prochaine réunion du CHSCT. L\'inspection du travail doit également visiter l\'usine suite à l\'accident.",
+  context: "L\'usine Sénégal Chimie, une entreprise de production de produits d\'entretien basée à Rufisque, emploie 100 salariés. Le secteur est classé à risque élevé en raison de la manipulation de produits chimiques et de l\'utilisation de machines industrielles. Un accident du travail grave est survenu la semaine dernière, impliquant un opérateur brûlé par un produit chimique. En tant que responsable HSE, vous devez mener une enquête sur l\'accident, identifier les risques, mettre à jour le document unique d\'évaluation des risques (DUER), organiser les formations sécurité obligatoires et préparer la prochaine réunion du CHSCT. L\'inspection du travail doit également visiter l\'usine suite à l\'accident.",
   objectives: [
     'Mener une enquête après un accident du travail',
     'Évaluer et prévenir les risques professionnels',
@@ -637,7 +637,7 @@ final HrTemplate onboarding = HrTemplate(
   level: 'licence',
   icon: 'assignment_ind',
   role: "Vous êtes le responsable RH chargé de l\'intégration des nouveaux arrivants.",
-  context: "L\'entreprise Sonatel, opérateur de télécommunications basé à Dakar, recrute 20 nouveaux collaborateurs par mois répartis dans différents services (commercial, technique, administratif). Le taux de rétention des nouveaux embauchés à 6 mois est de 70%, un chiffre que la direction souhaite améliorer. En tant que responsable RH en charge de l\'onboarding, vous devez concevoir un parcours d\'intégration structuré, organiser les journées d\'accueil, coordonner le tutorat et suivre l'évolution des nouveaux collaborateurs pendant leur période d\'essai. L\'objectif est d\'accélérer la montée en compétence et de fidéliser les talents.",
+  context: "L\'entreprise Sonatel, opérateur de télécommunications basé à Dakar, recrute 20 nouveaux collaborateurs par mois répartis dans différents services (commercial, technique, administratif). Le taux de rétention des nouveaux embauchés à 6 mois est de 70%, un chiffre que la direction souhaite améliorer. En tant que responsable RH en charge de l\'onboarding, vous devez concevoir un parcours d\'intégration structuré, organiser les journées d\'accueil, coordonner le tutorat et suivre l\'évolution des nouveaux collaborateurs pendant leur période d\'essai. L\'objectif est d\'accélérer la montée en compétence et de fidéliser les talents.",
   objectives: [
     'Concevoir un parcours d\'intégration progressif',
     'Organiser la journée d\'accueil et le programme des premières semaines',
