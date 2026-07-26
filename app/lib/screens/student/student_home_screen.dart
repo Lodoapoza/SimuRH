@@ -13,6 +13,7 @@ import 'package:simurh/screens/student/simulation_work_screen.dart';
 import 'package:simurh/screens/student/result_screen.dart';
 import 'package:simurh/screens/student/resources_view_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:simurh/services/sync_service.dart';
 
 class StudentHomeScreen extends StatefulWidget {
   const StudentHomeScreen({super.key});
@@ -97,8 +98,10 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
       }
 
       await _loadFromCache();
+      await SyncService().syncAll();
     } catch (e) {
       await _loadFromCache();
+      await SyncService().syncAll();
     }
 
     setState(() => _isLoading = false);
@@ -388,6 +391,19 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
           ],
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.sync),
+            tooltip: 'Synchroniser',
+            onPressed: () async {
+              await SyncService().syncAll();
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Synchronisation terminée'), duration: Duration(seconds: 2)),
+                );
+                _loadData();
+              }
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.swap_horiz),
             tooltip: 'Changer de profil',
