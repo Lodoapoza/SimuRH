@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simurh/screens/activation_screen.dart';
 import 'package:simurh/screens/home_gate.dart';
 import 'package:simurh/screens/professor/dashboard_screen.dart';
@@ -56,6 +57,8 @@ class _StartupGate extends StatefulWidget {
 
 class _StartupGateState extends State<_StartupGate> {
   bool? _activated;
+  LicenseInfo? _license;
+  String _profName = '';
 
   @override
   void initState() {
@@ -65,7 +68,14 @@ class _StartupGateState extends State<_StartupGate> {
 
   Future<void> _check() async {
     final ok = await LicenseService.isValid();
-    if (mounted) setState(() => _activated = ok);
+    final license = await LicenseService.getLicense();
+    final prefs = await SharedPreferences.getInstance();
+    final profName = prefs.getString('prof_name') ?? '';
+    if (mounted) setState(() {
+      _activated = ok;
+      _license = license;
+      _profName = profName;
+    });
   }
 
   @override
@@ -95,6 +105,38 @@ class _StartupGateState extends State<_StartupGate> {
               Text('SimuRH', style: theme.textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               Text('Application de simulation RH', style: theme.textTheme.bodyLarge?.copyWith(color: Colors.grey)),
+              if (_license != null) ...[
+                const SizedBox(height: 24),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        if (_profName.isNotEmpty) ListTile(
+                          leading: const Icon(Icons.person),
+                          title: const Text('Professeur'),
+                          subtitle: Text(_profName),
+                          dense: true, contentPadding: EdgeInsets.zero,
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.business),
+                          title: const Text('Établissement'),
+                          subtitle: Text(_license!.etablissement),
+                          dense: true, contentPadding: EdgeInsets.zero,
+                        ),
+                        ListTile(
+                          leading: Icon(Icons.event, color: _license!.isExpired ? Colors.red : Colors.green),
+                          title: const Text('Licence'),
+                          subtitle: Text(_license!.isExpired
+                              ? 'Expirée depuis ${_license!.expiryYear}'
+                              : 'Valide jusqu\'en ${_license!.expiryYear}'),
+                          dense: true, contentPadding: EdgeInsets.zero,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
               const SizedBox(height: 48),
               SizedBox(
                 width: double.infinity,

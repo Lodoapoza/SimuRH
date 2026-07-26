@@ -28,6 +28,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   String _userName = '';
   String _etablissement = '';
+  LicenseInfo? _license;
   bool _isLoading = true;
   bool _isOnline = true;
   int _simulationCount = 0;
@@ -69,6 +70,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       _userName = profile?.name ?? 'Professeur';
 
       final license = await LicenseService.getLicense();
+      _license = license;
       _etablissement = license?.etablissement ?? '';
 
       final sims = await _db.getCachedSimulations();
@@ -101,9 +103,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('SimuRH', style: TextStyle(fontWeight: FontWeight.w600, color: colorScheme.onPrimary)),
-            if (_etablissement.isNotEmpty)
-              Text(_etablissement,
-                style: TextStyle(fontSize: 12, color: colorScheme.onPrimary.withOpacity(0.8))),
+            Text(
+              [_etablissement, _userName, if (_license != null) 'Exp. ${_license!.expiryYear}']
+                  .where((s) => s.isNotEmpty)
+                  .join(' · '),
+              style: TextStyle(fontSize: 12, color: colorScheme.onPrimary.withOpacity(0.8))),
           ],
         ),
         backgroundColor: colorScheme.primary,
@@ -259,31 +263,31 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildLicenseBadge(ThemeData theme, ColorScheme colorScheme) {
-    final isTrial = LicenseService.isTrialMode();
+    final license = _license;
+    final expired = license != null && license.isExpired;
+    final label = expired ? 'Licence expirée' : 'Licence active';
+    final icn = expired ? Icons.warning : Icons.verified;
+    final clr = expired ? Colors.red : Colors.green;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: isTrial
-            ? Colors.orange.withOpacity(0.15)
-            : Colors.green.withOpacity(0.15),
+        color: clr.withOpacity(0.15),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            isTrial ? Icons.info_outline : Icons.verified,
-            size: 14,
-            color: isTrial ? Colors.orange[800] : Colors.green[700],
-          ),
+          Icon(icn, size: 14, color: clr[700]),
           const SizedBox(width: 4),
-          Text(
-            isTrial ? 'Mode essai' : 'Licence active',
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: isTrial ? Colors.orange[800] : Colors.green[700],
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+          Text(label, style: theme.textTheme.labelSmall?.copyWith(
+            color: clr[700], fontWeight: FontWeight.w500,
+          )),
+          if (license != null) ...[
+            const SizedBox(width: 4),
+            Text('· ${license.expiryYear}', style: theme.textTheme.labelSmall?.copyWith(
+              color: clr[700],
+            )),
+          ],
         ],
       ),
     );
@@ -613,6 +617,7 @@ class _SimulationListScreenState extends State<SimulationListScreen> {
     setState(() => _isLoading = true);
     try {
       final license = await LicenseService.getLicense();
+      _license = license;
       _etablissement = license?.etablissement ?? '';
       final data = await _db.getCachedSimulations();
       if (mounted) {

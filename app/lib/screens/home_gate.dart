@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simurh/models/local_profile.dart';
 import 'package:simurh/services/local_auth_service.dart';
 import 'package:simurh/services/db_service.dart';
 import 'package:simurh/services/group_service.dart';
+import 'package:simurh/services/license_service.dart';
 import 'package:simurh/screens/professor/dashboard_screen.dart';
 import 'package:simurh/screens/student/student_home_screen.dart';
 
@@ -17,6 +19,8 @@ class _HomeGateState extends State<HomeGate> {
   bool _loading = true;
   LocalProfile? _activeProfile;
   List<LocalProfile> _professors = [];
+  LicenseInfo? _license;
+  String _profName = '';
 
   @override
   void initState() {
@@ -27,9 +31,14 @@ class _HomeGateState extends State<HomeGate> {
   Future<void> _load() async {
     final profile = await _auth.getActiveProfile();
     final professors = await _auth.getAllProfessors();
+    final license = await LicenseService.getLicense();
+    final prefs = await SharedPreferences.getInstance();
+    final profName = prefs.getString('prof_name') ?? '';
     if (mounted) setState(() {
       _activeProfile = profile;
       _professors = professors;
+      _license = license;
+      _profName = profName;
       _loading = false;
     });
   }
@@ -51,7 +60,17 @@ class _HomeGateState extends State<HomeGate> {
 
   Widget _buildWelcomeScreen() {
     return Scaffold(
-      appBar: AppBar(title: const Text('SimuRH')),
+      appBar: AppBar(
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('SimuRH'),
+            if (_license != null && _license!.etablissement.isNotEmpty)
+              Text(_license!.etablissement,
+                style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7))),
+          ],
+        ),
+      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -70,6 +89,41 @@ class _HomeGateState extends State<HomeGate> {
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 16, color: Colors.grey),
               ),
+              if (_license != null) ...[
+                const SizedBox(height: 24),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        if (_profName.isNotEmpty) ListTile(
+                          leading: const Icon(Icons.person),
+                          title: const Text('Professeur'),
+                          subtitle: Text(_profName),
+                          dense: true,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.business),
+                          title: const Text('Établissement'),
+                          subtitle: Text(_license!.etablissement),
+                          dense: true,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                        ListTile(
+                          leading: Icon(Icons.event, color: _license!.isExpired ? Colors.red : Colors.green),
+                          title: const Text('Licence'),
+                          subtitle: Text(_license!.isExpired
+                              ? 'Expirée depuis ${_license!.expiryYear}'
+                              : 'Valide jusqu\'en ${_license!.expiryYear}'),
+                          dense: true,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
               const SizedBox(height: 48),
               SizedBox(
                 width: double.infinity,
