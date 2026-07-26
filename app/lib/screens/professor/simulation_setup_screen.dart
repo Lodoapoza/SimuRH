@@ -485,21 +485,21 @@ class _SimulationSetupScreenState extends State<SimulationSetupScreen> {
   }
 
   List<TextSpan> _buildScenarioSpans(HrTemplate template) {
-    final context = template.context;
+    final scenarioContext = template.context;
     final role = template.role;
 
     if (role.isEmpty) {
-      return [TextSpan(text: context)];
+      return [TextSpan(text: scenarioContext)];
     }
 
-    final roleIndex = context.indexOf(role);
+    final roleIndex = scenarioContext.indexOf(role);
     if (roleIndex == -1) {
-      return [TextSpan(text: context)];
+      return [TextSpan(text: scenarioContext)];
     }
 
     final theme = Theme.of(context);
-    final before = context.substring(0, roleIndex);
-    final after = context.substring(roleIndex + role.length);
+    final before = scenarioContext.substring(0, roleIndex);
+    final after = scenarioContext.substring(roleIndex + role.length);
 
     return [
       TextSpan(text: before),
@@ -776,14 +776,22 @@ class _SimulationSetupScreenState extends State<SimulationSetupScreen> {
         const SizedBox(height: 8),
 
         // Input based on type
-        switch (param.type) {
-          DecisionType.choice => _buildChoiceField(theme, param, currentValue),
-          DecisionType.percentage => _buildPercentageSlider(theme, param, currentValue),
-          DecisionType.currency => _buildCurrencySlider(theme, param, currentValue),
-          DecisionType.integer => _buildIntegerSlider(theme, param, currentValue),
-        },
+        _buildDecisionParamInput(theme, param, currentValue),
       ],
     );
+  }
+
+  Widget _buildDecisionParamInput(ThemeData theme, DecisionParam param, double currentValue) {
+    switch (param.type) {
+      case DecisionType.choice:
+        return _buildChoiceField(theme, param, currentValue);
+      case DecisionType.percentage:
+        return _buildPercentageSlider(theme, param, currentValue);
+      case DecisionType.currency:
+        return _buildCurrencySlider(theme, param, currentValue);
+      case DecisionType.integer:
+        return _buildIntegerSlider(theme, param, currentValue);
+    }
   }
 
   Widget _buildIntegerSlider(ThemeData theme, DecisionParam param, double currentValue) {
