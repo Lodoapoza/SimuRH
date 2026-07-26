@@ -354,7 +354,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildNavigationGrid(ThemeData theme, ColorScheme colorScheme) {
     final items = [
       _NavItem('Créer une simulation', Icons.add_circle_outline, colorScheme.primary, () {
-        Navigator.pushNamed(context, '/professor/create-simulation');
+        Navigator.pushNamed(context, '/professor/domain-selection');
       }),
       _NavItem('Mes simulations', Icons.assignment, colorScheme.tertiary, () {
         Navigator.push(

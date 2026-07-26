@@ -4,8 +4,12 @@ import 'package:simurh/screens/home_gate.dart';
 import 'package:simurh/screens/professor/dashboard_screen.dart';
 import 'package:simurh/screens/professor/create_simulation_screen.dart';
 import 'package:simurh/screens/professor/connectivity_screen.dart';
+import 'package:simurh/screens/professor/domain_selection_screen.dart';
+import 'package:simurh/screens/professor/simulation_setup_screen.dart';
+import 'package:simurh/screens/professor/template_course_screen.dart';
 import 'package:simurh/screens/student/student_home_screen.dart';
 import 'package:simurh/screens/student/connect_screen.dart';
+import 'package:simurh/screens/student/simulation_game_screen.dart';
 import 'package:simurh/services/license_service.dart';
 import 'package:simurh/services/sync_service.dart';
 
@@ -34,7 +38,11 @@ class SimuRhApp extends StatelessWidget {
         '/student/home': (context) => const StudentHomeScreen(),
         '/professor/create-simulation': (context) => const CreateSimulationScreen(),
         '/professor/connectivity': (context) => const ConnectivityScreen(),
+        '/professor/domain-selection': (context) => const DomainSelectionScreen(),
+        '/professor/simulation-setup': (context) => const SimulationSetupScreen(),
+        '/professor/template-course': (context) => const TemplateCourseScreen(),
         '/student/connect': (context) => const ConnectScreen(),
+        '/student/simulation-game': (context) => const SimulationGameScreen(),
       },
     );
   }

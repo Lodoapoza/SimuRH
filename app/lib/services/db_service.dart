@@ -21,7 +21,7 @@ class DbService {
     final path = join(dbPath, 'simurh_offline.db');
     return await openDatabase(
       path,
-      version: 4,
+      version: 6,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -49,7 +49,21 @@ class DbService {
         creator_id INTEGER,
         status TEXT,
         created_at TEXT,
-        updated_at TEXT
+        updated_at TEXT,
+        context TEXT,
+        objectives TEXT,
+        duration_days INTEGER DEFAULT 7,
+        max_groups INTEGER DEFAULT 5,
+        grading_criteria TEXT,
+        professor_name TEXT,
+        group_count INTEGER DEFAULT 0,
+        submission_count INTEGER DEFAULT 0,
+        decision_periods INTEGER DEFAULT 4,
+        decision_params TEXT,
+        regles TEXT,
+        contraintes TEXT,
+        success_metrics TEXT,
+        template_id TEXT
       )
     ''');
 
@@ -141,6 +155,21 @@ class DbService {
         created_at TEXT NOT NULL
       )
     ''');
+
+    await db.execute('''
+      CREATE TABLE simulation_rounds(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        simulation_id INTEGER NOT NULL,
+        group_id INTEGER NOT NULL,
+        period INTEGER NOT NULL,
+        decisions TEXT,
+        metrics TEXT,
+        status TEXT DEFAULT 'pending',
+        created_at TEXT NOT NULL,
+        FOREIGN KEY (simulation_id) REFERENCES simulations(id) ON DELETE CASCADE,
+        FOREIGN KEY (group_id) REFERENCES groups_table(id) ON DELETE CASCADE
+      )
+    ''');
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -177,6 +206,30 @@ class DbService {
       await db.execute('ALTER TABLE simulations ADD COLUMN professor_name TEXT');
       await db.execute('ALTER TABLE simulations ADD COLUMN group_count INTEGER DEFAULT 0');
       await db.execute('ALTER TABLE simulations ADD COLUMN submission_count INTEGER DEFAULT 0');
+    }
+    if (oldVersion < 5) {
+      await db.execute('ALTER TABLE simulations ADD COLUMN decision_periods INTEGER DEFAULT 4');
+      await db.execute('ALTER TABLE simulations ADD COLUMN decision_params TEXT');
+      await db.execute('ALTER TABLE simulations ADD COLUMN regles TEXT');
+      await db.execute('ALTER TABLE simulations ADD COLUMN contraintes TEXT');
+      await db.execute('ALTER TABLE simulations ADD COLUMN success_metrics TEXT');
+      await db.execute('ALTER TABLE simulations ADD COLUMN template_id TEXT');
+    }
+    if (oldVersion < 6) {
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS simulation_rounds(
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          simulation_id INTEGER NOT NULL,
+          group_id INTEGER NOT NULL,
+          period INTEGER NOT NULL,
+          decisions TEXT,
+          metrics TEXT,
+          status TEXT DEFAULT 'pending',
+          created_at TEXT NOT NULL,
+          FOREIGN KEY (simulation_id) REFERENCES simulations(id) ON DELETE CASCADE,
+          FOREIGN KEY (group_id) REFERENCES groups_table(id) ON DELETE CASCADE
+        )
+      ''');
     }
   }
 
