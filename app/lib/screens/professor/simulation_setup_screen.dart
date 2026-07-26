@@ -25,6 +25,8 @@ class _SimulationSetupScreenState extends State<SimulationSetupScreen> {
 
   // Form fields
   final _titleController = TextEditingController();
+  final _contextController = TextEditingController();
+  final _objectivesController = TextEditingController();
   int _durationDays = 7;
   int _maxGroups = 5;
   int _decisionPeriods = 3;
@@ -59,6 +61,8 @@ class _SimulationSetupScreenState extends State<SimulationSetupScreen> {
 
         // Pre-fill form with template values
         _titleController.text = template.title;
+        _contextController.text = template.context;
+        _objectivesController.text = template.objectives.join('\n');
         _durationDays = template.defaultDurationDays;
         _maxGroups = template.defaultMaxGroups;
         _decisionPeriods = template.decisionPeriods;
@@ -95,6 +99,8 @@ class _SimulationSetupScreenState extends State<SimulationSetupScreen> {
   @override
   void dispose() {
     _titleController.dispose();
+    _contextController.dispose();
+    _objectivesController.dispose();
     super.dispose();
   }
 
@@ -113,8 +119,14 @@ class _SimulationSetupScreenState extends State<SimulationSetupScreen> {
     return {
       'title': _titleController.text.trim(),
       'code': _generateLocalCode(),
-      'context': t.context,
-      'objectives': jsonEncode(t.objectives),
+      'context': _contextController.text.trim(),
+      'objectives': jsonEncode(
+        _objectivesController.text
+            .split('\n')
+            .map((l) => l.trim())
+            .where((l) => l.isNotEmpty)
+            .toList(),
+      ),
       'duration_days': _durationDays,
       'max_groups': _maxGroups,
       'grading_criteria': jsonEncode(
@@ -276,11 +288,11 @@ class _SimulationSetupScreenState extends State<SimulationSetupScreen> {
           const SizedBox(height: 20),
 
           // ── Scenario ──
-          _buildScenarioCard(theme, template),
+          _buildEditableScenarioCard(theme),
           const SizedBox(height: 20),
 
           // ── Objectives ──
-          _buildObjectivesSection(theme, template),
+          _buildObjectivesSection(theme),
           const SizedBox(height: 20),
 
           // ── Configuration form ──
@@ -449,7 +461,7 @@ class _SimulationSetupScreenState extends State<SimulationSetupScreen> {
 
   // ── Scenario ──
 
-  Widget _buildScenarioCard(ThemeData theme, HrTemplate template) {
+  Widget _buildEditableScenarioCard(ThemeData theme) {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -472,11 +484,15 @@ class _SimulationSetupScreenState extends State<SimulationSetupScreen> {
               ],
             ),
             const SizedBox(height: 12),
-            RichText(
-              text: TextSpan(
-                style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
-                children: _buildScenarioSpans(template),
+            TextFormField(
+              controller: _contextController,
+              maxLines: 6,
+              decoration: InputDecoration(
+                hintText: 'Décrivez le scénario de la simulation…',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                contentPadding: const EdgeInsets.all(12),
               ),
+              style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
             ),
           ],
         ),
@@ -484,40 +500,9 @@ class _SimulationSetupScreenState extends State<SimulationSetupScreen> {
     );
   }
 
-  List<TextSpan> _buildScenarioSpans(HrTemplate template) {
-    final scenarioContext = template.context;
-    final role = template.role;
-
-    if (role.isEmpty) {
-      return [TextSpan(text: scenarioContext)];
-    }
-
-    final roleIndex = scenarioContext.indexOf(role);
-    if (roleIndex == -1) {
-      return [TextSpan(text: scenarioContext)];
-    }
-
-    final theme = Theme.of(context);
-    final before = scenarioContext.substring(0, roleIndex);
-    final after = scenarioContext.substring(roleIndex + role.length);
-
-    return [
-      TextSpan(text: before),
-      TextSpan(
-        text: role,
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          color: theme.colorScheme.primary,
-          backgroundColor: theme.colorScheme.primaryContainer.withOpacity(0.3),
-        ),
-      ),
-      TextSpan(text: after),
-    ];
-  }
-
   // ── Objectives ──
 
-  Widget _buildObjectivesSection(ThemeData theme, HrTemplate template) {
+  Widget _buildObjectivesSection(ThemeData theme) {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -534,38 +519,22 @@ class _SimulationSetupScreenState extends State<SimulationSetupScreen> {
                 Icon(Icons.emoji_events, size: 20, color: theme.colorScheme.primary),
                 const SizedBox(width: 8),
                 Text(
-                  'Objectifs pédagogiques',
+                  'Objectifs pédagogiques (un par ligne)',
                   style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                 ),
               ],
             ),
             const SizedBox(height: 12),
-            ...template.objectives.asMap().entries.map((entry) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.only(top: 4),
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.primary,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        entry.value,
-                        style: theme.textTheme.bodyMedium?.copyWith(height: 1.4),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
+            TextFormField(
+              controller: _objectivesController,
+              maxLines: 5,
+              decoration: InputDecoration(
+                hintText: 'Saisissez les objectifs, un par ligne…',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                contentPadding: const EdgeInsets.all(12),
+              ),
+              style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
+            ),
           ],
         ),
       ),
