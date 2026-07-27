@@ -98,20 +98,14 @@ jobs:
         run: |
           sed -i "s/^version: .*/version: 1.0.${{ github.run_number }}+${{ github.run_number }}/" pubspec.yaml
 
-      - name: Check doctor
-        run: flutter doctor -v
       - name: Build APK
         working-directory: app
-        run: |
-          set +e
-          flutter build apk --debug 2>&1 | head -200
-          EC=$?
-          echo "--- EXIT: $EC ---"
+        run: flutter build apk --release
 
       - name: Prepare release
         run: |
           mkdir -p release
-          cp build/app/outputs/flutter-apk/app-debug.apk release/SimuRH.apk
+          cp app/build/app/outputs/flutter-apk/app-release.apk release/SimuRH.apk
 
       - name: Upload to Nightly Release
         if: github.ref == 'refs/heads/main'
