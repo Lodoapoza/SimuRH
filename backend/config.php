@@ -79,11 +79,6 @@ function get_auth_user(): ?array {
         $token = substr($auth, 7);
     }
     
-    if (!$token) {
-        // Fallback: GET/POST param
-        $token = $_REQUEST['token'] ?? null;
-    }
-    
     if (!$token) return null;
     
     $db = get_db();

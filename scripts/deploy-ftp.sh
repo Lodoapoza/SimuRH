@@ -1,63 +1,43 @@
 #!/bin/bash
-# SimuRH — Déploiement FTP vers O2Switch
-# Usage: ./scripts/deploy-ftp.sh
-
+# SimuRH — Déploiement FTP (Slim 4)
 set -e
 
-FTP_USER="sc3sidaou"
-FTP_PASS="LS@2025*"
-FTP_HOST="cloud.glocal-innov.com"
-FTP_BASE="/cloud.glocal-innov.com/public_html/simurh"
+FTP_USER="${FTP_USER:?FTP_USER non défini}"
+FTP_PASS="${FTP_PASS:?FTP_PASS non défini}"
+FTP_HOST="${FTP_HOST:?FTP_HOST non défini}"
+FTP_BASE="${FTP_BASE:?FTP_BASE non défini}"
 BACKEND_DIR="$(cd "$(dirname "$0")/../backend" && pwd)"
 FTP_OPTS="-s --ftp-create-dirs"
 
-echo "🚀 SimuRH — Déploiement FTP vers O2Switch"
-echo "   Host: $FTP_HOST$FTP_BASE"
-echo ""
+echo "🚀 SimuRH — Déploiement FTP vers $FTP_HOST$FTP_BASE"
 
 deploy_file() {
     local local_path="$1"
     local remote_name="$2"
-    
     if [ ! -f "$local_path" ]; then
         echo "   ⚠️  Fichier introuvable : $local_path"
         return
     fi
-    
     echo "   📤 $remote_name"
     curl -s -u "$FTP_USER:$FTP_PASS" $FTP_OPTS \
         -T "$local_path" \
         "ftp://$FTP_HOST$FTP_BASE/$remote_name"
 }
 
-echo "📁 Déploiement des fichiers..."
+deploy_dir() {
+    local local_dir="$1"
+    local remote_dir="$2"
+    for file in "$local_dir"/*; do
+        if [ -f "$file" ]; then
+            deploy_file "$file" "$remote_dir/$(basename "$file")"
+        fi
+    done
+}
 
-# Config
-deploy_file "$BACKEND_DIR/config.php" "config.php"
-
-# .htaccess
 deploy_file "$BACKEND_DIR/.htaccess" ".htaccess"
+deploy_file "$BACKEND_DIR/composer.json" "composer.json"
+deploy_dir "$BACKEND_DIR/public" "public"
+deploy_dir "$BACKEND_DIR/src" "src"
 
-# DB
-deploy_file "$BACKEND_DIR/db/schema.sql" "db/schema.sql"
-deploy_file "$BACKEND_DIR/db/init.php" "db/init.php"
-
-# API
-for php_file in "$BACKEND_DIR/api/"*.php; do
-    filename=$(basename "$php_file")
-    deploy_file "$php_file" "api/$filename"
-done
-
-echo ""
-echo "✅ Fichiers déployés !"
-echo ""
-
-# Initialiser la base de données via HTTP
-echo "🗄️  Initialisation de la base de données..."
-INIT_URL="https://$FTP_HOST/simurh/db/init.php"
-echo "   Appel : $INIT_URL"
-echo "   ⚠️  Tu dois exécuter cette URL dans ton navigateur ou lancer : php db/init.php sur O2Switch"
-echo ""
-
-echo "🔗 API : https://$FTP_HOST/simurh/api/health"
-echo "📱 Prêt pour l'app Flutter !"
+echo "✅ Fichiers déployés"
+echo "⚠️  Exécutez sur le serveur : cd \$FTP_BASE && composer install --no-dev --optimize-autoloader"

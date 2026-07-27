@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LicenseInfo {
@@ -39,22 +40,33 @@ class LicenseService {
   }
 
   /// Valide une clé complète (KKKK-KKKK-YYYY) pour un établissement.
-  static bool validate(String etablissement, String rawKey) {
+  static Future<bool> validate(String etablissement, String rawKey) async {
     final clean = rawKey.replaceAll('-', '').replaceAll(' ', '').toUpperCase();
     if (clean.length != 12) return false;
 
     final prefix = clean.substring(0, 8);
     final yearStr = clean.substring(8, 12);
 
-    // Valider le format hexadécimal
     if (!RegExp(r'^[0-9A-F]{12}$').hasMatch(clean)) return false;
 
     final expectedPrefix = _computePrefix(etablissement);
     if (prefix != expectedPrefix) return false;
 
-    // Vérifier l'année d'expiration
     final year = int.tryParse(yearStr, radix: 16);
     if (year == null) return false;
+
+    try {
+      final serverUrl = 'https://simurh.glocal-innov.com/api/license/validate';
+      final response = await http.post(
+        Uri.parse(serverUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'establishment': etablissement, 'key': clean}),
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['valid'] == true;
+      }
+    } catch (_) {}
 
     return true;
   }
@@ -62,7 +74,7 @@ class LicenseService {
   /// Active la licence pour un établissement avec une clé.
   static Future<bool> activate(String etablissement, String rawKey) async {
     final clean = rawKey.replaceAll('-', '').replaceAll(' ', '').toUpperCase();
-    if (!validate(etablissement, clean)) return false;
+    if (!await validate(etablissement, clean)) return false;
 
     final yearStr = clean.substring(8, 12);
     final year = int.parse(yearStr, radix: 16);
@@ -92,7 +104,7 @@ class LicenseService {
 
     // Re-valider la clé
     final savedKey = prefs.getString(_prefKey) ?? '';
-    return validate(etablissement, savedKey);
+    return await validate(etablissement, savedKey);
   }
 
   /// Retourne les infos de la licence active.

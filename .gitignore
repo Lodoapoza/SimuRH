@@ -21,3 +21,10 @@ app/.pub-cache/
 
 # OS
 Thumbs.db
+
+backend/setup.php
+backend/vendor/
+backend/public/
+backend/db/*.db
+backend/.env
+.env
