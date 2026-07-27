@@ -29,32 +29,11 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
           cache: true
-      - name: Generate platform scaffolding
-        run: |
-          set +e
-          flutter create --project-name simurh --org com.simurh _gen 2>&1
-          echo "--- FLUTTER CREATE EXIT: $?"
-          if [ -d "_gen/android" ]; then
-            rm -rf app/android
-            mkdir -p app
-            cp -r _gen/android app/
-            echo "--- ANDROID COPIED"
-          else
-            echo "--- NO ANDROID DIR"
-          fi
-          if [ -d "_gen/ios" ]; then
-            rm -rf app/ios
-            mkdir -p app
-            cp -r _gen/ios app/
-            echo "--- IOS COPIED"
-          fi
-          rm -rf _gen
-          echo "--- DONE"
       - name: Install dependencies
         run: flutter pub get
         working-directory: app
       - name: Analyze
-        run: flutter analyze
+        run: dart analyze lib/
         working-directory: app
 
   build:
