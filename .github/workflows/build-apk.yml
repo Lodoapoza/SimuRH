@@ -35,13 +35,17 @@ jobs:
           flutter create --project-name simurh --org com.simurh _gen 2>&1
           echo "--- FLUTTER CREATE EXIT: $?"
           if [ -d "_gen/android" ]; then
-            cp -r _gen/android/* app/android/
+            rm -rf app/android
+            mkdir -p app
+            cp -r _gen/android app/
             echo "--- ANDROID COPIED"
           else
             echo "--- NO ANDROID DIR"
           fi
           if [ -d "_gen/ios" ]; then
-            cp -r _gen/ios/* app/ios/
+            rm -rf app/ios
+            mkdir -p app
+            cp -r _gen/ios app/
             echo "--- IOS COPIED"
           fi
           rm -rf _gen
@@ -50,15 +54,7 @@ jobs:
         run: flutter pub get
         working-directory: app
       - name: Analyze
-        run: |
-          set +e
-          flutter analyze 2>&1 | tee /tmp/analyze_output.txt
-          EC=$?
-          echo "--- EXIT CODE: $EC ---"
-          echo "--- FULL OUTPUT ---"
-          cat /tmp/analyze_output.txt
-          echo "--- END ---"
-          exit $EC
+        run: flutter analyze
         working-directory: app
 
   build:
@@ -82,7 +78,9 @@ jobs:
           flutter create --project-name simurh --org com.simurh _gen 2>&1
           echo "--- FLUTTER CREATE EXIT: $?"
           if [ -d "_gen/android" ]; then
-            cp -r _gen/android/* app/android/
+            rm -rf app/android
+            mkdir -p app
+            cp -r _gen/android app/
             echo "--- ANDROID COPIED"
           else
             echo "--- NO ANDROID DIR"
@@ -100,7 +98,7 @@ jobs:
 
       - name: Build APK
         working-directory: app
-        run: flutter build apk --release
+        run: flutter build apk --release --no-shrink
 
       - name: Prepare release
         run: |
