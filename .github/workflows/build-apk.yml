@@ -62,9 +62,9 @@ jobs:
       - name: Build APK
         working-directory: app
         run: |
-          set +e
+          set -o pipefail
           flutter build apk --release --no-shrink 2>&1 | tee /tmp/build_output.txt
-          EC=$?
+          EC=${PIPESTATUS[0]}
           echo "--- EXIT CODE: $EC ---"
           echo "--- LAST 50 LINES ---"
           tail -50 /tmp/build_output.txt
@@ -73,18 +73,16 @@ jobs:
 
       - name: Prepare release
         run: |
-          set +e
-          echo "--- LOOKING FOR APK ---"
-          find app/build -name "*.apk" 2>/dev/null | head -20
+          echo "--- APK SEARCH ---"
+          find app/build -name "*.apk" 2>/dev/null
           mkdir -p release
           APK=$(find app/build -name "*.apk" 2>/dev/null | head -1)
           if [ -n "$APK" ]; then
             cp "$APK" release/SimuRH.apk
-            echo "--- COPIED $APK ---"
             ls -la release/
           else
-            echo "--- NO APK FOUND ---"
-            ls -la app/build/app/outputs/flutter-apk/ 2>/dev/null || echo "--- NO OUTPUT DIR ---"
+            echo "--- NO APK ---"
+            ls -laR app/build/app/ 2>/dev/null | head -30
             exit 1
           fi
 
