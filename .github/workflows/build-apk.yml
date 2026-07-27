@@ -64,11 +64,12 @@ jobs:
         run: |
           set -o pipefail
           flutter build apk --release --no-shrink 2>&1 | tee /tmp/build_output.txt
-          EC=${PIPESTATUS[0]}
-          echo "--- EXIT CODE: $EC ---"
-          echo "--- LAST 50 LINES ---"
-          tail -50 /tmp/build_output.txt
-          echo "--- END ---"
+          EC=$?
+          echo "::notice::BUILD EXIT CODE: $EC"
+          grep -iE '(error|failed|failure|exception|GradleException|BUILD FAILED)' /tmp/build_output.txt 2>/dev/null | head -20 | while read line; do echo "::error::$line"; done
+          echo "--- BUILD OUTPUT (last 60 lines) ---"
+          tail -60 /tmp/build_output.txt
+          echo "--- END BUILD OUTPUT ---"
           exit $EC
 
       - name: Prepare release
