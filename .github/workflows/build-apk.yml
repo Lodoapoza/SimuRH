@@ -94,6 +94,7 @@ jobs:
         working-directory: app
 
       - name: Set build version
+        working-directory: app
         run: |
           sed -i "s/^version: .*/version: 1.0.${{ github.run_number }}+${{ github.run_number }}/" pubspec.yaml
 
