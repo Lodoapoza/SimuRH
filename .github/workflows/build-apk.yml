@@ -63,27 +63,34 @@ jobs:
         working-directory: app
         run: |
           set -o pipefail
-          flutter build apk --release --no-shrink 2>&1 | tee /tmp/build_output.txt
+          flutter build apk --release --no-shrink -v 2>&1 | tee /tmp/build_output.txt
           EC=$?
-          echo "::notice::BUILD EXIT CODE: $EC"
-          grep -iE '(error|failed|failure|exception|GradleException|BUILD FAILED)' /tmp/build_output.txt 2>/dev/null | head -20 | while read line; do echo "::error::$line"; done
-          echo "--- BUILD OUTPUT (last 60 lines) ---"
-          tail -60 /tmp/build_output.txt
-          echo "--- END BUILD OUTPUT ---"
+          echo "--- BUILD EXIT CODE: $EC ---"
+          echo "--- ERROR LINES ---"
+          grep -iE 'FAILED|Error:|error:|BUILD FAILED|Exception|GradleException' /tmp/build_output.txt 2>/dev/null | head -30
+          echo "--- LAST 40 LINES ---"
+          tail -40 /tmp/build_output.txt
+          echo "--- END ---"
           exit $EC
+
+      - name: Upload build logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: /tmp/build_output.txt
 
       - name: Prepare release
         run: |
-          echo "--- APK SEARCH ---"
-          find app/build -name "*.apk" 2>/dev/null
+          set -e
           mkdir -p release
+          echo "--- SEARCH APK ---"
+          find app/build -name "*.apk" 2>/dev/null
           APK=$(find app/build -name "*.apk" 2>/dev/null | head -1)
           if [ -n "$APK" ]; then
             cp "$APK" release/SimuRH.apk
-            ls -la release/
+            ls -lh release/
           else
-            echo "--- NO APK ---"
-            ls -laR app/build/app/ 2>/dev/null | head -30
             exit 1
           fi
 
