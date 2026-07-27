@@ -49,7 +49,7 @@ class _ActivationScreenState extends State<ActivationScreen> {
 
     setState(() { _loading = true; _error = null; });
 
-    final valid = LicenseService.validate(etab, key);
+    final valid = await LicenseService.validate(etab, key);
     if (!valid) {
       _attempts++;
       if (_attempts >= _maxAttempts) {

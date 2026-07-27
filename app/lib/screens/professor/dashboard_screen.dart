@@ -643,7 +643,6 @@ class _SimulationListScreenState extends State<SimulationListScreen> {
     setState(() => _isLoading = true);
     try {
       final license = await LicenseService.getLicense();
-      _license = license;
       _etablissement = license?.etablissement ?? '';
       final data = await _db.getCachedSimulations();
       if (mounted) {

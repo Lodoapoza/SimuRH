@@ -15,6 +15,7 @@ class Simulation {
   final DateTime createdAt;
   final String professorName;
   final int groupCount;
+  final int decisionPeriods;
   final int submissionCount;
   final List<SimFile> files;
 
@@ -33,6 +34,7 @@ class Simulation {
     required this.createdAt,
     required this.professorName,
     required this.groupCount,
+    required this.decisionPeriods,
     required this.submissionCount,
     required this.files,
   });
@@ -96,6 +98,7 @@ class Simulation {
           : DateTime.now(),
       professorName: _str('professor_name'),
       groupCount: _int('group_count'),
+      decisionPeriods: _int('decision_periods', def: 1),
       submissionCount: _int('submission_count'),
       files: _files('files'),
     );
@@ -117,6 +120,7 @@ class Simulation {
       'createdAt': createdAt.toIso8601String(),
       'professorName': professorName,
       'groupCount': groupCount,
+      'decisionPeriods': decisionPeriods,
       'submissionCount': submissionCount,
       'files': files.map((e) => e.toJson()).toList(),
     };

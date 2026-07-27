@@ -247,7 +247,7 @@ class _SimulationDetailScreenState extends State<SimulationDetailScreen>
               _previewSection('Statut', _statusLabel(sim.status)),
               _previewSection('Durée', '${sim.durationDays} jours'),
               _previewSection('Groupes max', '${sim.maxGroups}'),
-              _previewSection('Périodes', '${sim.decisionPeriods}'),
+              _previewSection('Périodes', sim.decisionPeriods > 1 ? '${sim.decisionPeriods} périodes' : '1 période'),
               if (sim.context.isNotEmpty) _previewSection('Contexte', sim.context),
               if (sim.objectives.isNotEmpty)
                 _previewSection('Objectifs', sim.objectives.join('\n• ')),
