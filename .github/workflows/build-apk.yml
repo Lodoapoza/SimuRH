@@ -39,8 +39,9 @@ jobs:
 
       - name: Generate platform scaffolding
         run: |
-          flutter create --project-name simurh --org com.simurh ../_scaffold
-          cp -r ../_scaffold/android/* android/
+          rm -rf ../_scaffold
+          flutter create --project-name simurh --org com.simurh ../_scaffold 2>&1
+          cp -r ../_scaffold/android/* android/ 2>&1
           cp -r ../_scaffold/ios/* ios/ 2>/dev/null || true
           cp -r ../_scaffold/test/* test/ 2>/dev/null || true
           rm -rf ../_scaffold
@@ -72,8 +73,9 @@ jobs:
 
       - name: Generate platform scaffolding
         run: |
-          flutter create --project-name simurh --org com.simurh ../_scaffold
-          cp -r ../_scaffold/android/* android/
+          rm -rf ../_scaffold
+          flutter create --project-name simurh --org com.simurh ../_scaffold 2>&1
+          cp -r ../_scaffold/android/* android/ 2>&1
           cp -r ../_scaffold/ios/* ios/ 2>/dev/null || true
           cp -r ../_scaffold/test/* test/ 2>/dev/null || true
           rm -rf ../_scaffold
@@ -105,8 +107,9 @@ jobs:
 
       - name: Generate platform scaffolding
         run: |
-          flutter create --project-name simurh --org com.simurh ../_scaffold
-          cp -r ../_scaffold/android/* android/
+          rm -rf ../_scaffold
+          flutter create --project-name simurh --org com.simurh ../_scaffold 2>&1
+          cp -r ../_scaffold/android/* android/ 2>&1
           cp -r ../_scaffold/ios/* ios/ 2>/dev/null || true
           rm -rf ../_scaffold
 
