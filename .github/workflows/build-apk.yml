@@ -31,10 +31,21 @@ jobs:
           cache: true
       - name: Generate platform scaffolding
         run: |
-          flutter create --project-name simurh --org com.simurh _gen 2>&1 | tail -5
-          cp -r _gen/android/* app/android/
-          cp -r _gen/ios/* app/ios/ 2>/dev/null || true
+          set +e
+          flutter create --project-name simurh --org com.simurh _gen 2>&1
+          echo "--- FLUTTER CREATE EXIT: $?"
+          if [ -d "_gen/android" ]; then
+            cp -r _gen/android/* app/android/
+            echo "--- ANDROID COPIED"
+          else
+            echo "--- NO ANDROID DIR"
+          fi
+          if [ -d "_gen/ios" ]; then
+            cp -r _gen/ios/* app/ios/
+            echo "--- IOS COPIED"
+          fi
           rm -rf _gen
+          echo "--- DONE"
       - name: Install dependencies
         run: flutter pub get
         working-directory: app
@@ -59,9 +70,17 @@ jobs:
           cache: true
       - name: Generate platform scaffolding
         run: |
-          flutter create --project-name simurh --org com.simurh _gen 2>&1 | tail -5
-          cp -r _gen/android/* app/android/
+          set +e
+          flutter create --project-name simurh --org com.simurh _gen 2>&1
+          echo "--- FLUTTER CREATE EXIT: $?"
+          if [ -d "_gen/android" ]; then
+            cp -r _gen/android/* app/android/
+            echo "--- ANDROID COPIED"
+          else
+            echo "--- NO ANDROID DIR"
+          fi
           rm -rf _gen
+          echo "--- DONE"
       - name: Install dependencies
         run: flutter pub get
         working-directory: app
