@@ -35,7 +35,12 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
       - name: Analyze
-        run: dart analyze lib/
+        run: |
+          set +e
+          dart analyze lib/ 2>&1
+          EC=$?
+          echo "EXIT_CODE=$EC"
+          exit $EC
 
   build:
     name: Build APK
