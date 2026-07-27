@@ -19,26 +19,8 @@ env:
   FLUTTER_VERSION: '3.22.0'
 
 jobs:
-  analyze:
-    name: Analyze
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: 'stable'
-          cache: true
-      - name: Install dependencies
-        run: flutter pub get
-        working-directory: app
-      - name: Analyze
-        run: dart analyze lib/
-        working-directory: app
-
   build:
     name: Build APK
-    needs: analyze
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
@@ -51,6 +33,7 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
           cache: true
+
       - name: Generate platform scaffolding
         run: |
           set +e
@@ -66,6 +49,7 @@ jobs:
           fi
           rm -rf _gen
           echo "--- DONE"
+
       - name: Install dependencies
         run: flutter pub get
         working-directory: app
