@@ -99,12 +99,12 @@ jobs:
           sed -i "s/^version: .*/version: 1.0.${{ github.run_number }}+${{ github.run_number }}/" pubspec.yaml
 
       - name: Build APK
-        run: flutter build apk --release --target-platform android-arm64 --split-per-abi
+        run: flutter build apk --debug
 
       - name: Prepare release
         run: |
           mkdir -p release
-          cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk release/SimuRH.apk
+          cp build/app/outputs/flutter-apk/app-debug.apk release/SimuRH.apk
 
       - name: Upload to Nightly Release
         if: github.ref == 'refs/heads/main'
