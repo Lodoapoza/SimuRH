@@ -50,7 +50,15 @@ jobs:
         run: flutter pub get
         working-directory: app
       - name: Analyze
-        run: flutter analyze
+        run: |
+          set +e
+          flutter analyze 2>&1 | tee /tmp/analyze_output.txt
+          EC=$?
+          echo "--- EXIT CODE: $EC ---"
+          echo "--- FULL OUTPUT ---"
+          cat /tmp/analyze_output.txt
+          echo "--- END ---"
+          exit $EC
         working-directory: app
 
   build:
