@@ -61,7 +61,15 @@ jobs:
 
       - name: Build APK
         working-directory: app
-        run: flutter build apk --release --no-shrink
+        run: |
+          set +e
+          flutter build apk --release --no-shrink 2>&1 | tee /tmp/build_output.txt
+          EC=$?
+          echo "--- EXIT CODE: $EC ---"
+          echo "--- LAST 50 LINES ---"
+          tail -50 /tmp/build_output.txt
+          echo "--- END ---"
+          exit $EC
 
       - name: Prepare release
         run: |
