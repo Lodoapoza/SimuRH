@@ -98,8 +98,15 @@ jobs:
         run: |
           sed -i "s/^version: .*/version: 1.0.${{ github.run_number }}+${{ github.run_number }}/" pubspec.yaml
 
+      - name: Check doctor
+        run: flutter doctor -v
       - name: Build APK
-        run: flutter build apk --debug
+        working-directory: app
+        run: |
+          set +e
+          flutter build apk --debug 2>&1 | head -200
+          EC=$?
+          echo "--- EXIT: $EC ---"
 
       - name: Prepare release
         run: |
