@@ -73,8 +73,20 @@ jobs:
 
       - name: Prepare release
         run: |
+          set +e
+          echo "--- LOOKING FOR APK ---"
+          find app/build -name "*.apk" 2>/dev/null | head -20
           mkdir -p release
-          cp app/build/app/outputs/flutter-apk/app-release.apk release/SimuRH.apk
+          APK=$(find app/build -name "*.apk" 2>/dev/null | head -1)
+          if [ -n "$APK" ]; then
+            cp "$APK" release/SimuRH.apk
+            echo "--- COPIED $APK ---"
+            ls -la release/
+          else
+            echo "--- NO APK FOUND ---"
+            ls -la app/build/app/outputs/flutter-apk/ 2>/dev/null || echo "--- NO OUTPUT DIR ---"
+            exit 1
+          fi
 
       - name: Upload to Nightly Release
         if: github.ref == 'refs/heads/main'
